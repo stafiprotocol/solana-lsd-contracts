@@ -4,36 +4,6 @@ pub use crate::errors::Errors;
 
 #[account]
 #[derive(Debug)]
-pub struct StakeManagerOld {
-    pub admin: Pubkey,
-    pub rsol_mint: Pubkey,
-    pub fee_recipient: Pubkey,
-    pub pool_seed_bump: u8,
-    pub rent_exempt_for_pool_acc: u64,
-
-    pub min_stake_amount: u64,
-    pub unstake_fee_commission: u64,  // decimals 9
-    pub protocol_fee_commission: u64, // decimals 9
-    pub rate_change_limit: u64,       // decimals 9
-    pub stake_accounts_len_limit: u64,
-    pub split_accounts_len_limit: u64,
-    pub unbonding_duration: u64,
-
-    pub latest_era: u64,
-    pub rate: u64, // decimals 9
-    pub era_bond: u64,
-    pub era_unbond: u64,
-    pub active: u64,
-    pub total_rsol_supply: u64,
-    pub total_protocol_fee: u64,
-    pub validators: Vec<Pubkey>,
-    pub stake_accounts: Vec<Pubkey>,
-    pub split_accounts: Vec<Pubkey>,
-    pub era_process_data: EraProcessData,
-}
-
-#[account]
-#[derive(Debug)]
 pub struct StakeManager {
     pub admin: Pubkey,
     pub balancer: Pubkey,
@@ -43,7 +13,6 @@ pub struct StakeManager {
     pub rent_exempt_for_pool_acc: u64,
 
     pub min_stake_amount: u64,
-    pub unstake_fee_commission: u64,  // decimals 9
     pub protocol_fee_commission: u64, // decimals 9
     pub rate_change_limit: u64,       // decimals 9
     pub stake_accounts_len_limit: u64,
@@ -109,7 +78,6 @@ impl StakeManager {
     pub const DEFAULT_UNBONDING_DURATION: u64 = 2;
     pub const CAL_BASE: u64 = 1_000_000_000;
     pub const DEFAULT_MIN_STAKE_AMOUNT: u64 = 1_000_000;
-    pub const DEFAULT_UNSTAKE_FEE_COMMISSION: u64 = 0;
     pub const DEFAULT_PROTOCOL_FEE_COMMISSION: u64 = 100_000_000;
     pub const DEFAULT_RATE_CHANGE_LIMIT: u64 = 500_000;
     pub const DEFAULT_STAKE_ACCOUNT_LEN_LIMIT: u64 = 100;
@@ -123,14 +91,6 @@ impl StakeManager {
     pub fn calc_sol_amount(&self, rsol_amount: u64) -> Result<u64> {
         u64::try_from(
             (rsol_amount as u128) * (self.rate as u128) / (StakeManager::CAL_BASE as u128),
-        )
-        .map_err(|_| error!(Errors::CalculationFail))
-    }
-
-    pub fn calc_unstake_fee(&self, rsol_amount: u64) -> Result<u64> {
-        u64::try_from(
-            (rsol_amount as u128) * (self.unstake_fee_commission as u128)
-                / (StakeManager::CAL_BASE as u128),
         )
         .map_err(|_| error!(Errors::CalculationFail))
     }

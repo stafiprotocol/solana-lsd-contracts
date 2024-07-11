@@ -10,7 +10,6 @@ use anchor_lang::{
 };
 use anchor_spl::stake::{withdraw, Stake, StakeAccount, Withdraw};
 
-
 #[derive(Accounts)]
 pub struct Redelegate<'info> {
     #[account(
@@ -59,7 +58,6 @@ pub struct Redelegate<'info> {
     )]
     pub rent_payer: Signer<'info>,
 
-    
     pub clock: Sysvar<'info, Clock>,
     /// CHECK: stake config account
     #[account(address = stake::config::ID)]
@@ -78,15 +76,14 @@ pub struct EventRedelegate {
     pub redelegate_amount: u64,
 }
 
-
 impl<'info> Redelegate<'info> {
     pub fn process(&mut self, redelegate_amount: u64) -> Result<()> {
         require_gt!(redelegate_amount, 0, Errors::AmountUnmatch);
 
         require!(
-            self.stake_manager.era_process_data.is_empty(), 
-            Errors::EraIsProcessing)
-        ;
+            self.stake_manager.era_process_data.is_empty(),
+            Errors::EraIsProcessing
+        );
 
         require!(
             self.stake_manager
@@ -130,11 +127,15 @@ impl<'info> Redelegate<'info> {
             Errors::StakeAccountNotActive
         );
 
-        require_keys_neq!(self.to_validator.key(), delegation.voter_pubkey, Errors::ValidatorNotMatch);
+        require_keys_neq!(
+            self.to_validator.key(),
+            delegation.voter_pubkey,
+            Errors::ValidatorNotMatch
+        );
 
         require_gte!(delegation.stake, redelegate_amount, Errors::AmountUnmatch);
 
-        let will_redelegate_from_stake_account =  if redelegate_amount < delegation.stake {
+        let will_redelegate_from_stake_account = if redelegate_amount < delegation.stake {
             // split
             let split_instruction = stake::instruction::split(
                 self.from_stake_account.to_account_info().key,
@@ -199,7 +200,7 @@ impl<'info> Redelegate<'info> {
 
         invoke_signed(
             redelegate_instruction,
-                &[
+            &[
                 self.stake_program.to_account_info(),
                 will_redelegate_from_stake_account.clone(),
                 self.to_stake_account.to_account_info(),
@@ -214,7 +215,6 @@ impl<'info> Redelegate<'info> {
             ]],
         )?;
 
-
         self.stake_manager
             .split_accounts
             .push(will_redelegate_from_stake_account.key());
@@ -223,12 +223,12 @@ impl<'info> Redelegate<'info> {
             .stake_accounts
             .push(self.to_stake_account.key());
 
-        emit!(EventRedelegate{ 
-            from_stake_account: self.from_stake_account.key(), 
+        emit!(EventRedelegate {
+            from_stake_account: self.from_stake_account.key(),
             to_stake_account: self.to_stake_account.key(),
-            redelegate_amount 
+            redelegate_amount
         });
-        
+
         Ok(())
     }
 }

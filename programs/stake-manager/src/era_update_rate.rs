@@ -1,6 +1,6 @@
 use crate::{Errors, StakeManager};
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Mint,mint_to, MintTo,Token, TokenAccount};
+use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct EraUpdateRate<'info> {
@@ -101,8 +101,8 @@ impl<'info> EraUpdateRate<'info> {
         self.stake_manager.active = new_active;
         self.stake_manager.rate = new_rate;
 
-        emit!(EventEraUpdateRate{ 
-            era: self.stake_manager.latest_era, 
+        emit!(EventEraUpdateRate {
+            era: self.stake_manager.latest_era,
             rate: new_rate,
             fee: protocol_fee
         });

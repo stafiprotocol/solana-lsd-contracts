@@ -1,14 +1,11 @@
 use crate::{Errors, StakeManager, UnstakeAccount};
 use anchor_lang::prelude::*;
-use anchor_spl::token::{
-    burn, transfer as transfer_token, Burn, Mint, Token, TokenAccount, Transfer as TransferToken,
-};
+use anchor_spl::token::{burn, Burn, Mint, Token, TokenAccount};
 
 #[derive(Accounts)]
 pub struct Unstake<'info> {
     #[account(
         mut, 
-        has_one = fee_recipient @ Errors::FeeRecipientNotMatch,
         has_one = rsol_mint @ Errors::MintAccountNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -30,9 +27,6 @@ pub struct Unstake<'info> {
     )]
     pub unstake_account: Box<Account<'info, UnstakeAccount>>,
 
-    #[account(mut)]
-    pub fee_recipient: Box<Account<'info, TokenAccount>>,
-
     pub clock: Sysvar<'info, Clock>,
     pub rent: Sysvar<'info, Rent>,
     pub token_program: Program<'info, Token>,
@@ -46,7 +40,6 @@ pub struct EventUnstake {
     pub unstake_account: Pubkey,
     pub unstake_amount: u64,
     pub sol_amount: u64,
-    pub unstake_fee: u64,
 }
 
 impl<'info> Unstake<'info> {
@@ -73,26 +66,7 @@ impl<'info> Unstake<'info> {
             return err!(Errors::AuthorityNotMatch);
         }
 
-        let unstake_fee = self.stake_manager.calc_unstake_fee(unstake_amount)?;
-        let unbond_amount = unstake_amount - unstake_fee;
-
-        // transfer fee
-        if unstake_fee > 0 {
-            transfer_token(
-                CpiContext::new(
-                    self.token_program.to_account_info(),
-                    TransferToken {
-                        from: self.burn_rsol_from.to_account_info(),
-                        to: self.fee_recipient.to_account_info(),
-                        authority: self.burn_rsol_authority.to_account_info(),
-                    },
-                ),
-                unstake_fee,
-            )?;
-            self.stake_manager.total_protocol_fee += unstake_fee;
-        }
-
-        let sol_amount = self.stake_manager.calc_sol_amount(unbond_amount)?;
+        let sol_amount = self.stake_manager.calc_sol_amount(unstake_amount)?;
         self.stake_manager.era_unbond += sol_amount;
         self.stake_manager.active -= sol_amount;
 
@@ -106,10 +80,10 @@ impl<'info> Unstake<'info> {
                     authority: self.burn_rsol_authority.to_account_info(),
                 },
             ),
-            unbond_amount,
+            unstake_amount,
         )?;
 
-        self.stake_manager.total_rsol_supply -= unbond_amount;
+        self.stake_manager.total_rsol_supply -= unstake_amount;
 
         self.unstake_account.set_inner(UnstakeAccount {
             stake_manager: self.stake_manager.key(),
@@ -118,16 +92,15 @@ impl<'info> Unstake<'info> {
             created_epoch: self.clock.epoch,
         });
 
-        emit!(EventUnstake{ 
-            era: self.stake_manager.latest_era, 
-            staker: self.burn_rsol_from.owner, 
-            burn_rsol_from: self.burn_rsol_from.key(), 
+        emit!(EventUnstake {
+            era: self.stake_manager.latest_era,
+            staker: self.burn_rsol_from.owner,
+            burn_rsol_from: self.burn_rsol_from.key(),
             unstake_account: self.unstake_account.key(),
-            unstake_amount, 
-            sol_amount, 
-            unstake_fee 
+            unstake_amount,
+            sol_amount
         });
-        
+
         Ok(())
     }
 }

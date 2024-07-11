@@ -52,20 +52,11 @@ pub mod stake_manager_program {
     use super::*;
 
     // initialize
-
     pub fn initialize(ctx: Context<Initialize>, initialize_data: InitializeData) -> Result<()> {
         check_context(&ctx)?;
 
         ctx.accounts
             .process(initialize_data, ctx.bumps.stake_pool)?;
-
-        Ok(())
-    }
-
-    pub fn migrate_stake_account(ctx: Context<MigrateStakeAccount>) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process()?;
 
         Ok(())
     }
@@ -104,17 +95,6 @@ pub mod stake_manager_program {
         Ok(())
     }
 
-    pub fn set_unstake_fee_commission(
-        ctx: Context<SetUnstakeFeeCommission>,
-        unstake_fee_commission: u64,
-    ) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(unstake_fee_commission)?;
-
-        Ok(())
-    }
-
     pub fn set_rate_change_limit(
         ctx: Context<SetRateChangeLimit>,
         rate_change_limit: u64,
@@ -146,14 +126,6 @@ pub mod stake_manager_program {
         check_context(&ctx)?;
 
         ctx.accounts.process(new_size)?;
-
-        Ok(())
-    }
-
-    pub fn upgrade_stake_manager(ctx: Context<UpgradeStakeManager>) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process()?;
 
         Ok(())
     }
