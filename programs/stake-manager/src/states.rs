@@ -1,13 +1,22 @@
+pub use crate::errors::Errors;
 use anchor_lang::prelude::*;
 
-pub use crate::errors::Errors;
+#[account]
+#[derive(Debug)]
+pub struct Stack {
+    pub admin: Pubkey,
+    pub stack_fee_owner: Pubkey,
+    pub stack_fee_commission: u64, // decimals 9
+    pub entrusted_stake_managers: Vec<Pubkey>,
+}
 
 #[account]
 #[derive(Debug)]
 pub struct StakeManager {
     pub admin: Pubkey,
     pub balancer: Pubkey,
-    pub rsol_mint: Pubkey,
+    pub stack: Pubkey,
+    pub lsd_token_mint: Pubkey,
     pub fee_recipient: Pubkey,
     pub pool_seed_bump: u8,
     pub rent_exempt_for_pool_acc: u64,
@@ -24,7 +33,6 @@ pub struct StakeManager {
     pub era_bond: u64,
     pub era_unbond: u64,
     pub active: u64,
-    pub total_rsol_supply: u64,
     pub total_protocol_fee: u64,
     pub validators: Vec<Pubkey>,
     pub stake_accounts: Vec<Pubkey>,
@@ -77,13 +85,14 @@ impl StakeManager {
 
     pub const DEFAULT_UNBONDING_DURATION: u64 = 2;
     pub const CAL_BASE: u64 = 1_000_000_000;
+    pub const DEFAULT_RATE: u64 = 1_000_000_000;
     pub const DEFAULT_MIN_STAKE_AMOUNT: u64 = 1_000_000;
     pub const DEFAULT_PROTOCOL_FEE_COMMISSION: u64 = 100_000_000;
     pub const DEFAULT_RATE_CHANGE_LIMIT: u64 = 500_000;
     pub const DEFAULT_STAKE_ACCOUNT_LEN_LIMIT: u64 = 100;
     pub const DEFAULT_SPLIT_ACCOUNT_LEN_LIMIT: u64 = 20;
 
-    pub fn calc_rsol_amount(&self, sol_amount: u64) -> Result<u64> {
+    pub fn calc_lsd_token_amount(&self, sol_amount: u64) -> Result<u64> {
         u64::try_from((sol_amount as u128) * (StakeManager::CAL_BASE as u128) / (self.rate as u128))
             .map_err(|_| error!(Errors::CalculationFail))
     }

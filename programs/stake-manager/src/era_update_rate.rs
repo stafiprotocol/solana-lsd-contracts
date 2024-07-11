@@ -20,11 +20,11 @@ pub struct EraUpdateRate<'info> {
     pub stake_pool: SystemAccount<'info>,
 
     #[account(mut)]
-    pub rsol_mint: Box<Account<'info, Mint>>,
+    pub lsd_token_mint: Box<Account<'info, Mint>>,
 
     #[account(
         mut,
-        token::mint = stake_manager.rsol_mint
+        token::mint = stake_manager.lsd_token_mint
     )]
     pub fee_recipient: Box<Account<'info, TokenAccount>>,
 
@@ -60,7 +60,7 @@ impl<'info> EraUpdateRate<'info> {
                 CpiContext::new_with_signer(
                     self.token_program.to_account_info(),
                     MintTo {
-                        mint: self.rsol_mint.to_account_info(),
+                        mint: self.lsd_token_mint.to_account_info(),
                         to: self.fee_recipient.to_account_info(),
                         authority: self.stake_pool.to_account_info(),
                     },
@@ -74,7 +74,6 @@ impl<'info> EraUpdateRate<'info> {
             )?;
 
             self.stake_manager.total_protocol_fee += protocol_fee;
-            self.stake_manager.total_rsol_supply += protocol_fee;
         }
 
         let cal_temp = self.stake_manager.active + self.stake_manager.era_process_data.new_active;
@@ -86,7 +85,7 @@ impl<'info> EraUpdateRate<'info> {
 
         let new_rate = self
             .stake_manager
-            .calc_rate(new_active, self.stake_manager.total_rsol_supply)?;
+            .calc_rate(new_active, self.lsd_token_mint.supply)?;
         let rate_change = self
             .stake_manager
             .calc_rate_change(self.stake_manager.rate, new_rate)?;

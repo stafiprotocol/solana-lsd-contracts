@@ -6,16 +6,16 @@ use anchor_spl::token::{burn, Burn, Mint, Token, TokenAccount};
 pub struct Unstake<'info> {
     #[account(
         mut, 
-        has_one = rsol_mint @ Errors::MintAccountNotMatch
+        has_one = lsd_token_mint @ Errors::MintAccountNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
 
     #[account(mut)]
-    pub rsol_mint: Box<Account<'info, Mint>>,
+    pub lsd_token_mint: Box<Account<'info, Mint>>,
 
     #[account(
         mut,
-        token::mint = stake_manager.rsol_mint,
+        token::mint = stake_manager.lsd_token_mint,
     )]
     pub burn_rsol_from: Box<Account<'info, TokenAccount>>,
 
@@ -75,15 +75,13 @@ impl<'info> Unstake<'info> {
             CpiContext::new(
                 self.token_program.to_account_info(),
                 Burn {
-                    mint: self.rsol_mint.to_account_info(),
+                    mint: self.lsd_token_mint.to_account_info(),
                     from: self.burn_rsol_from.to_account_info(),
                     authority: self.burn_rsol_authority.to_account_info(),
                 },
             ),
             unstake_amount,
         )?;
-
-        self.stake_manager.total_rsol_supply -= unstake_amount;
 
         self.unstake_account.set_inner(UnstakeAccount {
             stake_manager: self.stake_manager.key(),

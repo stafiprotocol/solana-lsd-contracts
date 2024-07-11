@@ -1,7 +1,7 @@
 use crate::{Errors, StakeManager};
 use anchor_lang::{prelude::*, system_program};
 #[derive(Accounts)]
-pub struct TransferAdmin<'info> {
+pub struct TransferStakeManagerAdmin<'info> {
     #[account(
         mut, 
         has_one = admin @ Errors::AdminNotMatch
@@ -11,11 +11,11 @@ pub struct TransferAdmin<'info> {
     pub admin: Signer<'info>,
 }
 
-impl<'info> TransferAdmin<'info> {
+impl<'info> TransferStakeManagerAdmin<'info> {
     pub fn process(&mut self, new_admin: Pubkey) -> Result<()> {
         self.stake_manager.admin = new_admin;
 
-        msg!("TransferAdmin: new admin: {}", new_admin);
+        msg!("TransferStakeManagerAdmin: new admin: {}", new_admin);
         Ok(())
     }
 }
@@ -76,6 +76,26 @@ impl<'info> SetUnbondingDuration<'info> {
         self.stake_manager.unbonding_duration = duration;
 
         msg!("SetUnbondingDuration: duration: {}", duration);
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct SetProtocolFeeCommission<'info> {
+    #[account(
+        mut, 
+        has_one = admin @ Errors::AdminNotMatch
+    )]
+    pub stake_manager: Box<Account<'info, StakeManager>>,
+
+    pub admin: Signer<'info>,
+}
+
+impl<'info> SetProtocolFeeCommission<'info> {
+    pub fn process(&mut self, protocol_fee_commission: u64) -> Result<()> {
+        self.stake_manager.protocol_fee_commission = protocol_fee_commission;
+
+        msg!("SetProtocolFeeCommission: {}", protocol_fee_commission);
         Ok(())
     }
 }

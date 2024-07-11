@@ -8,7 +8,7 @@ use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
 pub struct Stake<'info> {
     #[account(
         mut,
-        has_one = rsol_mint @Errors::MintAccountNotMatch,
+        has_one = lsd_token_mint @Errors::MintAccountNotMatch,
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
 
@@ -30,11 +30,11 @@ pub struct Stake<'info> {
     pub from: Signer<'info>,
 
     #[account(mut)]
-    pub rsol_mint: Box<Account<'info, Mint>>,
+    pub lsd_token_mint: Box<Account<'info, Mint>>,
 
     #[account(
         mut,
-        token::mint = stake_manager.rsol_mint
+        token::mint = stake_manager.lsd_token_mint
     )]
     pub mint_to: Box<Account<'info, TokenAccount>>,
 
@@ -62,7 +62,7 @@ impl<'info> Stake<'info> {
         let user_balance = self.from.lamports();
         require_gte!(user_balance, stake_amount, Errors::BalanceNotEnough);
 
-        let rsol_amount = self.stake_manager.calc_rsol_amount(stake_amount)?;
+        let rsol_amount = self.stake_manager.calc_lsd_token_amount(stake_amount)?;
 
         self.stake_manager.era_bond += stake_amount;
         self.stake_manager.active += stake_amount;
@@ -84,7 +84,7 @@ impl<'info> Stake<'info> {
             CpiContext::new_with_signer(
                 self.token_program.to_account_info(),
                 MintTo {
-                    mint: self.rsol_mint.to_account_info(),
+                    mint: self.lsd_token_mint.to_account_info(),
                     to: self.mint_to.to_account_info(),
                     authority: self.stake_pool.to_account_info(),
                 },
@@ -96,8 +96,6 @@ impl<'info> Stake<'info> {
             ),
             rsol_amount,
         )?;
-
-        self.stake_manager.total_rsol_supply += rsol_amount;
 
         emit!(EventStake {
             era: self.stake_manager.latest_era,

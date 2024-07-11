@@ -1,6 +1,7 @@
 use anchor_lang::{prelude::*, Bumps};
 
-pub mod admin;
+pub mod admin_stack;
+pub mod admin_stake_manager;
 pub mod era_bond;
 pub mod era_merge;
 pub mod era_new;
@@ -9,14 +10,15 @@ pub mod era_update_active;
 pub mod era_update_rate;
 pub mod era_withdraw;
 pub mod errors;
-pub mod initialize;
+pub mod initialize_stake_manager;
 pub mod redelegate;
 pub mod staker_stake;
 pub mod staker_unstake;
 pub mod staker_withdraw;
 pub mod states;
 
-pub use crate::admin::*;
+pub use crate::admin_stack::*;
+pub use crate::admin_stake_manager::*;
 pub use crate::era_bond::*;
 pub use crate::era_merge::*;
 pub use crate::era_new::*;
@@ -25,7 +27,7 @@ pub use crate::era_update_active::*;
 pub use crate::era_update_rate::*;
 pub use crate::era_withdraw::*;
 pub use crate::errors::Errors;
-pub use crate::initialize::*;
+pub use crate::initialize_stake_manager::*;
 pub use crate::redelegate::*;
 pub use crate::staker_stake::*;
 pub use crate::staker_unstake::*;
@@ -51,8 +53,11 @@ pub mod stake_manager_program {
 
     use super::*;
 
-    // initialize
-    pub fn initialize(ctx: Context<Initialize>, initialize_data: InitializeData) -> Result<()> {
+    // permissionless
+    pub fn initialize(
+        ctx: Context<InitializeStakeManager>,
+        initialize_data: InitializeStakeManagerData,
+    ) -> Result<()> {
         check_context(&ctx)?;
 
         ctx.accounts
@@ -61,9 +66,55 @@ pub mod stake_manager_program {
         Ok(())
     }
 
-    // admin
+    // admin of stack
 
-    pub fn transfer_admin(ctx: Context<TransferAdmin>, new_admin: Pubkey) -> Result<()> {
+    pub fn transfer_stack_admin(ctx: Context<TransferStackAdmin>, new_admin: Pubkey) -> Result<()> {
+        check_context(&ctx)?;
+
+        ctx.accounts.process(new_admin)?;
+
+        Ok(())
+    }
+
+    pub fn set_stack_fee_commission(
+        ctx: Context<SetStackFeeCommission>,
+        stack_fee_commission: u64,
+    ) -> Result<()> {
+        check_context(&ctx)?;
+
+        ctx.accounts.process(stack_fee_commission)?;
+
+        Ok(())
+    }
+
+    pub fn add_entrusted_stake_manager(
+        ctx: Context<AddEntrustedStakeManager>,
+        stake_manager: Pubkey,
+    ) -> Result<()> {
+        check_context(&ctx)?;
+
+        ctx.accounts.process(stake_manager)?;
+
+        Ok(())
+    }
+
+    pub fn remove_entrusted_stake_manager(
+        ctx: Context<RemoveEntrustedStakeManager>,
+        stake_manager: Pubkey,
+    ) -> Result<()> {
+        check_context(&ctx)?;
+
+        ctx.accounts.process(stake_manager)?;
+
+        Ok(())
+    }
+
+    // admin of stake manager
+
+    pub fn transfer_stake_manager_admin(
+        ctx: Context<TransferStakeManagerAdmin>,
+        new_admin: Pubkey,
+    ) -> Result<()> {
         check_context(&ctx)?;
 
         ctx.accounts.process(new_admin)?;
@@ -102,6 +153,17 @@ pub mod stake_manager_program {
         check_context(&ctx)?;
 
         ctx.accounts.process(rate_change_limit)?;
+
+        Ok(())
+    }
+
+    pub fn set_protocol_fee_commission(
+        ctx: Context<SetProtocolFeeCommission>,
+        protocol_fee_commission: u64,
+    ) -> Result<()> {
+        check_context(&ctx)?;
+
+        ctx.accounts.process(protocol_fee_commission)?;
 
         Ok(())
     }
