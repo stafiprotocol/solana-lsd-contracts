@@ -17,8 +17,14 @@ pub enum Errors {
     #[msg("Initialize data not match")]
     InitializeDataMatch,
 
-    #[msg("Fee recipient not match")]
-    FeeRecipientNotMatch,
+    #[msg("Platform fee recipient not match")]
+    PlatformFeeRecipientNotMatch,
+
+    #[msg("Stack fee recipient not match")]
+    StackFeeRecipientNotMatch,
+
+    #[msg("Stack not match")]
+    StackNotMatch,
 
     #[msg("Delegation empty")]
     DelegationEmpty,

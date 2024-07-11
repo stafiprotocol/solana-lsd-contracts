@@ -10,6 +10,17 @@ pub struct Stack {
     pub entrusted_stake_managers: Vec<Pubkey>,
 }
 
+impl Stack {
+    pub const DEFAULT_STACK_FEE_COMMISSION: u64 = 100_000_000;
+
+    pub fn calc_stack_fee(&self, platform_fee_raw: u64) -> Result<u64> {
+        u64::try_from(
+            (platform_fee_raw as u128) * (self.stack_fee_commission as u128) / (1e9 as u128),
+        )
+        .map_err(|_| error!(Errors::CalculationFail))
+    }
+}
+
 #[account]
 #[derive(Debug)]
 pub struct StakeManager {
@@ -17,12 +28,13 @@ pub struct StakeManager {
     pub balancer: Pubkey,
     pub stack: Pubkey,
     pub lsd_token_mint: Pubkey,
-    pub fee_recipient: Pubkey,
+    pub platform_fee_recipient: Pubkey,
+    pub stack_fee_recipient: Pubkey,
     pub pool_seed_bump: u8,
     pub rent_exempt_for_pool_acc: u64,
 
     pub min_stake_amount: u64,
-    pub protocol_fee_commission: u64, // decimals 9
+    pub platform_fee_commission: u64, // decimals 9
     pub rate_change_limit: u64,       // decimals 9
     pub stake_accounts_len_limit: u64,
     pub split_accounts_len_limit: u64,
@@ -33,7 +45,7 @@ pub struct StakeManager {
     pub era_bond: u64,
     pub era_unbond: u64,
     pub active: u64,
-    pub total_protocol_fee: u64,
+    pub total_platform_fee: u64,
     pub validators: Vec<Pubkey>,
     pub stake_accounts: Vec<Pubkey>,
     pub split_accounts: Vec<Pubkey>,
@@ -87,7 +99,7 @@ impl StakeManager {
     pub const CAL_BASE: u64 = 1_000_000_000;
     pub const DEFAULT_RATE: u64 = 1_000_000_000;
     pub const DEFAULT_MIN_STAKE_AMOUNT: u64 = 1_000_000;
-    pub const DEFAULT_PROTOCOL_FEE_COMMISSION: u64 = 100_000_000;
+    pub const DEFAULT_PLATFORM_FEE_COMMISSION: u64 = 100_000_000;
     pub const DEFAULT_RATE_CHANGE_LIMIT: u64 = 500_000;
     pub const DEFAULT_STAKE_ACCOUNT_LEN_LIMIT: u64 = 100;
     pub const DEFAULT_SPLIT_ACCOUNT_LEN_LIMIT: u64 = 20;
@@ -104,9 +116,9 @@ impl StakeManager {
         .map_err(|_| error!(Errors::CalculationFail))
     }
 
-    pub fn calc_protocol_fee(&self, reward_sol: u64) -> Result<u64> {
+    pub fn calc_platform_fee(&self, reward_sol: u64) -> Result<u64> {
         u64::try_from(
-            (reward_sol as u128) * (self.protocol_fee_commission as u128) / (self.rate as u128),
+            (reward_sol as u128) * (self.platform_fee_commission as u128) / (self.rate as u128),
         )
         .map_err(|_| error!(Errors::CalculationFail))
     }

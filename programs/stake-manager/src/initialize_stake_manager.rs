@@ -1,13 +1,19 @@
 pub use crate::errors::Errors;
 use crate::EraProcessData;
+use crate::Stack;
 pub use crate::StakeManager;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, TokenAccount};
 
 #[derive(Accounts)]
 pub struct InitializeStakeManager<'info> {
-    #[account(zero)]
+    #[account(
+        zero,
+        rent_exempt = enforce,
+    )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
+
+    pub stack: Box<Account<'info, Stack>>,
 
     #[account(
         seeds = [
@@ -19,7 +25,13 @@ pub struct InitializeStakeManager<'info> {
     pub stake_pool: SystemAccount<'info>,
 
     #[account(token::mint = lsd_token_mint)]
-    pub fee_recipient: Box<Account<'info, TokenAccount>>,
+    pub platform_fee_recipient: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+        associated_token::mint = lsd_token_mint,
+        associated_token::authority = stack.stack_fee_owner,
+    )]
+    pub stack_fee_recipient: Box<Account<'info, TokenAccount>>,
 
     pub lsd_token_mint: Box<Account<'info, Mint>>,
 
@@ -70,16 +82,17 @@ impl<'info> InitializeStakeManager<'info> {
             lsd_token_mint: initialize_data.lsd_token_mint,
             rent_exempt_for_pool_acc,
             pool_seed_bump,
-            fee_recipient: self.fee_recipient.key(),
+            platform_fee_recipient: self.platform_fee_recipient.key(),
+            stack_fee_recipient: self.stack_fee_recipient.key(),
             min_stake_amount: StakeManager::DEFAULT_MIN_STAKE_AMOUNT,
-            protocol_fee_commission: StakeManager::DEFAULT_PROTOCOL_FEE_COMMISSION,
+            platform_fee_commission: StakeManager::DEFAULT_PLATFORM_FEE_COMMISSION,
             rate_change_limit: StakeManager::DEFAULT_RATE_CHANGE_LIMIT,
             stake_accounts_len_limit: StakeManager::DEFAULT_STAKE_ACCOUNT_LEN_LIMIT,
             split_accounts_len_limit: StakeManager::DEFAULT_SPLIT_ACCOUNT_LEN_LIMIT,
             unbonding_duration: StakeManager::DEFAULT_UNBONDING_DURATION,
-            latest_era: 0,
+            latest_era: self.clock.epoch,
             rate: StakeManager::DEFAULT_RATE,
-            total_protocol_fee: 0,
+            total_platform_fee: 0,
             era_bond: 0,
             era_unbond: 0,
             active: 0,

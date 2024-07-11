@@ -21,8 +21,6 @@ impl<'info> TransferStackAdmin<'info> {
     }
 }
 
-
-
 #[derive(Accounts)]
 pub struct SetStackFeeCommission<'info> {
     #[account(
@@ -42,7 +40,6 @@ impl<'info> SetStackFeeCommission<'info> {
         Ok(())
     }
 }
-
 
 #[derive(Accounts)]
 pub struct AddEntrustedStakeManager<'info> {

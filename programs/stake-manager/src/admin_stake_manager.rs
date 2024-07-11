@@ -81,7 +81,7 @@ impl<'info> SetUnbondingDuration<'info> {
 }
 
 #[derive(Accounts)]
-pub struct SetProtocolFeeCommission<'info> {
+pub struct SetPlatformFeeCommission<'info> {
     #[account(
         mut, 
         has_one = admin @ Errors::AdminNotMatch
@@ -91,11 +91,11 @@ pub struct SetProtocolFeeCommission<'info> {
     pub admin: Signer<'info>,
 }
 
-impl<'info> SetProtocolFeeCommission<'info> {
-    pub fn process(&mut self, protocol_fee_commission: u64) -> Result<()> {
-        self.stake_manager.protocol_fee_commission = protocol_fee_commission;
+impl<'info> SetPlatformFeeCommission<'info> {
+    pub fn process(&mut self, platform_fee_commission: u64) -> Result<()> {
+        self.stake_manager.platform_fee_commission = platform_fee_commission;
 
-        msg!("SetProtocolFeeCommission: {}", protocol_fee_commission);
+        msg!("SetPlatformFeeCommission: {}", platform_fee_commission);
         Ok(())
     }
 }

@@ -10,6 +10,7 @@ pub mod era_update_active;
 pub mod era_update_rate;
 pub mod era_withdraw;
 pub mod errors;
+pub mod initialize_stack;
 pub mod initialize_stake_manager;
 pub mod redelegate;
 pub mod staker_stake;
@@ -27,6 +28,7 @@ pub use crate::era_update_active::*;
 pub use crate::era_update_rate::*;
 pub use crate::era_withdraw::*;
 pub use crate::errors::Errors;
+pub use crate::initialize_stack::*;
 pub use crate::initialize_stake_manager::*;
 pub use crate::redelegate::*;
 pub use crate::staker_stake::*;
@@ -54,7 +56,19 @@ pub mod stake_manager_program {
     use super::*;
 
     // permissionless
-    pub fn initialize(
+
+    pub fn initialize_stack(
+        ctx: Context<InitializeStack>,
+        initialize_data: InitializeStackData,
+    ) -> Result<()> {
+        check_context(&ctx)?;
+
+        ctx.accounts.process(initialize_data)?;
+
+        Ok(())
+    }
+
+    pub fn initialize_stake_manager(
         ctx: Context<InitializeStakeManager>,
         initialize_data: InitializeStakeManagerData,
     ) -> Result<()> {
@@ -157,8 +171,8 @@ pub mod stake_manager_program {
         Ok(())
     }
 
-    pub fn set_protocol_fee_commission(
-        ctx: Context<SetProtocolFeeCommission>,
+    pub fn set_platform_fee_commission(
+        ctx: Context<SetPlatformFeeCommission>,
         protocol_fee_commission: u64,
     ) -> Result<()> {
         check_context(&ctx)?;

@@ -1,4 +1,4 @@
-use crate::{Errors, StakeManager};
+use crate::{Errors, Stack, StakeManager};
 use anchor_lang::prelude::*;
 use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
 
@@ -6,9 +6,13 @@ use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
 pub struct EraUpdateRate<'info> {
     #[account(
         mut, 
-        has_one = fee_recipient @ Errors::FeeRecipientNotMatch
+        has_one = platform_fee_recipient @ Errors::PlatformFeeRecipientNotMatch,
+        has_one = stack_fee_recipient @ Errors::StackFeeRecipientNotMatch,
+        has_one = stack @ Errors::StackNotMatch,
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
+
+    pub stack: Box<Account<'info, Stack>>,
 
     #[account(
         seeds = [
@@ -26,7 +30,13 @@ pub struct EraUpdateRate<'info> {
         mut,
         token::mint = stake_manager.lsd_token_mint
     )]
-    pub fee_recipient: Box<Account<'info, TokenAccount>>,
+    pub platform_fee_recipient: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+        mut,
+        token::mint = stake_manager.lsd_token_mint
+    )]
+    pub stack_fee_recipient: Box<Account<'info, TokenAccount>>,
 
     pub token_program: Program<'info, Token>,
 }
@@ -35,7 +45,8 @@ pub struct EraUpdateRate<'info> {
 pub struct EventEraUpdateRate {
     pub era: u64,
     pub rate: u64,
-    pub fee: u64,
+    pub platform_fee: u64,
+    pub stack_fee: u64,
 }
 
 impl<'info> EraUpdateRate<'info> {
@@ -54,14 +65,17 @@ impl<'info> EraUpdateRate<'info> {
             0
         };
 
-        let protocol_fee = self.stake_manager.calc_protocol_fee(reward)?;
-        if protocol_fee > 0 {
+        let platform_fee_raw = self.stake_manager.calc_platform_fee(reward)?;
+        let stack_fee = self.stack.calc_stack_fee(platform_fee_raw)?;
+        let platform_fee = platform_fee_raw - stack_fee;
+
+        if platform_fee > 0 {
             mint_to(
                 CpiContext::new_with_signer(
                     self.token_program.to_account_info(),
                     MintTo {
                         mint: self.lsd_token_mint.to_account_info(),
-                        to: self.fee_recipient.to_account_info(),
+                        to: self.platform_fee_recipient.to_account_info(),
                         authority: self.stake_pool.to_account_info(),
                     },
                     &[&[
@@ -70,10 +84,28 @@ impl<'info> EraUpdateRate<'info> {
                         &[self.stake_manager.pool_seed_bump],
                     ]],
                 ),
-                protocol_fee,
+                platform_fee,
             )?;
 
-            self.stake_manager.total_protocol_fee += protocol_fee;
+            self.stake_manager.total_platform_fee += platform_fee;
+        }
+        if stack_fee > 0 {
+            mint_to(
+                CpiContext::new_with_signer(
+                    self.token_program.to_account_info(),
+                    MintTo {
+                        mint: self.lsd_token_mint.to_account_info(),
+                        to: self.stack_fee_recipient.to_account_info(),
+                        authority: self.stake_pool.to_account_info(),
+                    },
+                    &[&[
+                        &self.stake_manager.key().to_bytes(),
+                        StakeManager::POOL_SEED,
+                        &[self.stake_manager.pool_seed_bump],
+                    ]],
+                ),
+                stack_fee,
+            )?;
         }
 
         let cal_temp = self.stake_manager.active + self.stake_manager.era_process_data.new_active;
@@ -103,7 +135,8 @@ impl<'info> EraUpdateRate<'info> {
         emit!(EventEraUpdateRate {
             era: self.stake_manager.latest_era,
             rate: new_rate,
-            fee: protocol_fee
+            platform_fee: platform_fee,
+            stack_fee: stack_fee,
         });
         Ok(())
     }
