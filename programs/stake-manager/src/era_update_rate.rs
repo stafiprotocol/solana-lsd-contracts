@@ -1,13 +1,14 @@
 use crate::{Errors, Stack, StakeManager};
 use anchor_lang::prelude::*;
-use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{mint_to, Mint, MintTo, Token, TokenAccount},
+};
 
 #[derive(Accounts)]
 pub struct EraUpdateRate<'info> {
     #[account(
         mut, 
-        has_one = platform_fee_recipient @ Errors::PlatformFeeRecipientNotMatch,
-        has_one = stack_fee_recipient @ Errors::StackFeeRecipientNotMatch,
         has_one = stack @ Errors::StackNotMatch,
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -28,16 +29,19 @@ pub struct EraUpdateRate<'info> {
 
     #[account(
         mut,
-        token::mint = stake_manager.lsd_token_mint
+        associated_token::mint = lsd_token_mint,
+        associated_token::authority = stake_manager.admin,
     )]
     pub platform_fee_recipient: Box<Account<'info, TokenAccount>>,
 
     #[account(
         mut,
-        token::mint = stake_manager.lsd_token_mint
+        associated_token::mint = lsd_token_mint,
+        associated_token::authority = stack.admin,
     )]
     pub stack_fee_recipient: Box<Account<'info, TokenAccount>>,
 
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub token_program: Program<'info, Token>,
 }
 

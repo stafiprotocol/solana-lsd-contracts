@@ -5,7 +5,6 @@ use anchor_lang::prelude::*;
 #[derive(Debug)]
 pub struct Stack {
     pub admin: Pubkey,
-    pub stack_fee_owner: Pubkey,
     pub stack_fee_commission: u64, // decimals 9
     pub entrusted_stake_managers: Vec<Pubkey>,
 }
@@ -28,8 +27,6 @@ pub struct StakeManager {
     pub balancer: Pubkey,
     pub stack: Pubkey,
     pub lsd_token_mint: Pubkey,
-    pub platform_fee_recipient: Pubkey,
-    pub stack_fee_recipient: Pubkey,
     pub pool_seed_bump: u8,
     pub rent_exempt_for_pool_acc: u64,
 
@@ -156,4 +153,10 @@ pub struct UnstakeAccount {
     pub recipient: Pubkey,
     pub amount: u64,
     pub created_epoch: u64,
+}
+
+#[account]
+#[derive(Debug)]
+pub struct StackFeeAccount {
+    pub amount: u64,
 }

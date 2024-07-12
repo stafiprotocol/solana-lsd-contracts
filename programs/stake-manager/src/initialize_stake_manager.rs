@@ -1,9 +1,13 @@
 pub use crate::errors::Errors;
 use crate::EraProcessData;
 use crate::Stack;
+use crate::StackFeeAccount;
 pub use crate::StakeManager;
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Mint, TokenAccount};
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{Mint, TokenAccount},
+};
 
 #[derive(Accounts)]
 pub struct InitializeStakeManager<'info> {
@@ -24,19 +28,29 @@ pub struct InitializeStakeManager<'info> {
     )]
     pub stake_pool: SystemAccount<'info>,
 
-    #[account(token::mint = lsd_token_mint)]
+    #[account(
+        associated_token::mint = lsd_token_mint,
+        associated_token::authority = admin,
+    )]
     pub platform_fee_recipient: Box<Account<'info, TokenAccount>>,
 
     #[account(
         associated_token::mint = lsd_token_mint,
-        associated_token::authority = stack.stack_fee_owner,
+        associated_token::authority = stack.admin,
     )]
     pub stack_fee_recipient: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+        zero,
+        rent_exempt = enforce
+    )]
+    pub stack_fee_account: Box<Account<'info, StackFeeAccount>>,
 
     pub lsd_token_mint: Box<Account<'info, Mint>>,
 
     pub admin: Signer<'info>,
 
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub clock: Sysvar<'info, Clock>,
     pub rent: Sysvar<'info, Rent>,
 }
@@ -82,8 +96,6 @@ impl<'info> InitializeStakeManager<'info> {
             lsd_token_mint: initialize_data.lsd_token_mint,
             rent_exempt_for_pool_acc,
             pool_seed_bump,
-            platform_fee_recipient: self.platform_fee_recipient.key(),
-            stack_fee_recipient: self.stack_fee_recipient.key(),
             min_stake_amount: StakeManager::DEFAULT_MIN_STAKE_AMOUNT,
             platform_fee_commission: StakeManager::DEFAULT_PLATFORM_FEE_COMMISSION,
             rate_change_limit: StakeManager::DEFAULT_RATE_CHANGE_LIMIT,

@@ -57,13 +57,10 @@ pub mod stake_manager_program {
 
     // permissionless
 
-    pub fn initialize_stack(
-        ctx: Context<InitializeStack>,
-        initialize_data: InitializeStackData,
-    ) -> Result<()> {
+    pub fn initialize_stack(ctx: Context<InitializeStack>) -> Result<()> {
         check_context(&ctx)?;
 
-        ctx.accounts.process(initialize_data)?;
+        ctx.accounts.process()?;
 
         Ok(())
     }
