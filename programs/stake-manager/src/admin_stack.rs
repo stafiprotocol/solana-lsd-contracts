@@ -1,4 +1,4 @@
-use crate::{Errors, Stack};
+use crate::{Errors, Stack, StakeManager};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
@@ -37,6 +37,31 @@ impl<'info> SetStackFeeCommission<'info> {
         self.stack.stack_fee_commission = stack_fee_commission;
 
         msg!("SetStackFeeCommission: {}", stack_fee_commission);
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct SetPlatformStackFeeCommission<'info> {
+    #[account(
+        mut, 
+        has_one = stack @ Errors::StackNotMatch,
+    )]
+    pub stake_manager: Box<Account<'info, StakeManager>>,
+
+    #[account(
+        has_one = admin @ Errors::AdminNotMatch
+    )]
+    pub stack: Box<Account<'info, Stack>>,
+
+    pub admin: Signer<'info>,
+}
+
+impl<'info> SetPlatformStackFeeCommission<'info> {
+    pub fn process(&mut self, stack_fee_commission: u64) -> Result<()> {
+        self.stake_manager.stack_fee_commission = stack_fee_commission;
+
+        msg!("SetPlatformStackFeeCommission: {}", stack_fee_commission);
         Ok(())
     }
 }

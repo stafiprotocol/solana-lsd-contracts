@@ -32,7 +32,8 @@ pub struct StakeManager {
 
     pub min_stake_amount: u64,
     pub platform_fee_commission: u64, // decimals 9
-    pub rate_change_limit: u64,       // decimals 9
+    pub stack_fee_commission: u64,
+    pub rate_change_limit: u64, // decimals 9
     pub stake_accounts_len_limit: u64,
     pub split_accounts_len_limit: u64,
     pub unbonding_duration: u64,

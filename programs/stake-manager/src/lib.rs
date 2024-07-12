@@ -55,7 +55,7 @@ pub mod stake_manager_program {
 
     use super::*;
 
-    // permissionless
+    // initialize account
 
     pub fn initialize_stack(ctx: Context<InitializeStack>) -> Result<()> {
         check_context(&ctx)?;
@@ -65,17 +65,11 @@ pub mod stake_manager_program {
         Ok(())
     }
 
-    pub fn initialize_stake_manager(
-        ctx: Context<InitializeStakeManager>,
-        initialize_data: InitializeStakeManagerData,
-    ) -> Result<()> {
+    pub fn initialize_stake_manager(ctx: Context<InitializeStakeManager>) -> Result<()> {
         check_context(&ctx)?;
 
-        ctx.accounts.process(
-            initialize_data,
-            ctx.bumps.stake_pool,
-            ctx.bumps.stack_fee_account,
-        )?;
+        ctx.accounts
+            .process(ctx.bumps.stake_pool, ctx.bumps.stack_fee_account)?;
 
         Ok(())
     }
@@ -92,6 +86,17 @@ pub mod stake_manager_program {
 
     pub fn set_stack_fee_commission(
         ctx: Context<SetStackFeeCommission>,
+        stack_fee_commission: u64,
+    ) -> Result<()> {
+        check_context(&ctx)?;
+
+        ctx.accounts.process(stack_fee_commission)?;
+
+        Ok(())
+    }
+
+    pub fn set_platform_stack_fee_commission(
+        ctx: Context<SetPlatformStackFeeCommission>,
         stack_fee_commission: u64,
     ) -> Result<()> {
         check_context(&ctx)?;

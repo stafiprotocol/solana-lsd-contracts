@@ -53,6 +53,9 @@ pub struct InitializeStakeManager<'info> {
 
     pub lsd_token_mint: Box<Account<'info, Mint>>,
 
+    /// CHECK: todo
+    pub validator: UncheckedAccount<'info>,
+
     pub admin: Signer<'info>,
 
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -60,20 +63,8 @@ pub struct InitializeStakeManager<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, AnchorSerialize, AnchorDeserialize)]
-pub struct InitializeStakeManagerData {
-    pub stack: Pubkey,
-    pub lsd_token_mint: Pubkey,
-    pub validator: Pubkey,
-}
-
 impl<'info> InitializeStakeManager<'info> {
-    pub fn process(
-        &mut self,
-        initialize_data: InitializeStakeManagerData,
-        pool_seed_bump: u8,
-        stack_fee_account_seed_bump: u8,
-    ) -> Result<()> {
+    pub fn process(&mut self, pool_seed_bump: u8, stack_fee_account_seed_bump: u8) -> Result<()> {
         require_keys_neq!(self.stake_manager.key(), self.stake_pool.key());
 
         let rent_exempt_for_pool_acc = self.rent.minimum_balance(0);
@@ -98,12 +89,13 @@ impl<'info> InitializeStakeManager<'info> {
         self.stake_manager.set_inner(StakeManager {
             admin: self.admin.key(),
             balancer: self.admin.key(),
-            stack: initialize_data.stack,
-            lsd_token_mint: initialize_data.lsd_token_mint,
+            stack: self.stack.key(),
+            lsd_token_mint: self.lsd_token_mint.key(),
             rent_exempt_for_pool_acc,
             pool_seed_bump,
             min_stake_amount: StakeManager::DEFAULT_MIN_STAKE_AMOUNT,
             platform_fee_commission: StakeManager::DEFAULT_PLATFORM_FEE_COMMISSION,
+            stack_fee_commission: self.stack.stack_fee_commission,
             rate_change_limit: StakeManager::DEFAULT_RATE_CHANGE_LIMIT,
             stake_accounts_len_limit: StakeManager::DEFAULT_STAKE_ACCOUNT_LEN_LIMIT,
             split_accounts_len_limit: StakeManager::DEFAULT_SPLIT_ACCOUNT_LEN_LIMIT,
@@ -114,7 +106,7 @@ impl<'info> InitializeStakeManager<'info> {
             era_bond: 0,
             era_unbond: 0,
             active: 0,
-            validators: vec![initialize_data.validator],
+            validators: vec![self.validator.key()],
             stake_accounts: vec![],
             split_accounts: vec![],
             era_process_data: EraProcessData {
