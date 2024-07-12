@@ -71,8 +71,11 @@ pub mod stake_manager_program {
     ) -> Result<()> {
         check_context(&ctx)?;
 
-        ctx.accounts
-            .process(initialize_data, ctx.bumps.stake_pool)?;
+        ctx.accounts.process(
+            initialize_data,
+            ctx.bumps.stake_pool,
+            ctx.bumps.stack_fee_account,
+        )?;
 
         Ok(())
     }

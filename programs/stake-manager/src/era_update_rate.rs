@@ -1,4 +1,4 @@
-use crate::{Errors, Stack, StakeManager};
+use crate::{Errors, Stack, StackFeeAccount, StakeManager};
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
@@ -40,6 +40,16 @@ pub struct EraUpdateRate<'info> {
         associated_token::authority = stack.admin,
     )]
     pub stack_fee_recipient: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+        mut,
+        seeds = [
+            &stake_manager.key().to_bytes(),
+            &lsd_token_mint.key().to_bytes(),
+        ],
+        bump = stack_fee_account.bump,
+    )]
+    pub stack_fee_account: Box<Account<'info, StackFeeAccount>>,
 
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub token_program: Program<'info, Token>,
@@ -110,6 +120,8 @@ impl<'info> EraUpdateRate<'info> {
                 ),
                 stack_fee,
             )?;
+
+            self.stack_fee_account.amount += stack_fee;
         }
 
         let cal_temp = self.stake_manager.active + self.stake_manager.era_process_data.new_active;

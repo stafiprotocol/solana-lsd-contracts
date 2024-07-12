@@ -158,5 +158,6 @@ pub struct UnstakeAccount {
 #[account]
 #[derive(Debug)]
 pub struct StackFeeAccount {
+    pub bump: u8,
     pub amount: u64,
 }

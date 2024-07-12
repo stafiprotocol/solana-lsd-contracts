@@ -42,7 +42,12 @@ pub struct InitializeStakeManager<'info> {
 
     #[account(
         zero,
-        rent_exempt = enforce
+        rent_exempt = enforce,
+        seeds = [
+            &stake_manager.key().to_bytes(),
+            &lsd_token_mint.key().to_bytes(),
+        ],
+        bump,
     )]
     pub stack_fee_account: Box<Account<'info, StackFeeAccount>>,
 
@@ -67,6 +72,7 @@ impl<'info> InitializeStakeManager<'info> {
         &mut self,
         initialize_data: InitializeStakeManagerData,
         pool_seed_bump: u8,
+        stack_fee_account_seed_bump: u8,
     ) -> Result<()> {
         require_keys_neq!(self.stake_manager.key(), self.stake_pool.key());
 
@@ -118,6 +124,11 @@ impl<'info> InitializeStakeManager<'info> {
                 new_active: 0,
                 pending_stake_accounts: vec![],
             },
+        });
+
+        self.stack_fee_account.set_inner(StackFeeAccount {
+            bump: stack_fee_account_seed_bump,
+            amount: 0,
         });
 
         Ok(())
