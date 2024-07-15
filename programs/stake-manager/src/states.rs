@@ -6,11 +6,13 @@ use anchor_lang::prelude::*;
 pub struct Stack {
     pub admin: Pubkey,
     pub stack_fee_commission: u64, // decimals 9
+    pub stake_managers_len_limit: u64,
     pub entrusted_stake_managers: Vec<Pubkey>,
 }
 
 impl Stack {
     pub const DEFAULT_STACK_FEE_COMMISSION: u64 = 100_000_000;
+    pub const DEFAULT_STAKE_MANAGERS_LEN_LIMIT: u64 = 20;
 
     pub fn calc_stack_fee(&self, platform_fee_raw: u64) -> Result<u64> {
         u64::try_from(
@@ -107,9 +109,9 @@ impl StakeManager {
             .map_err(|_| error!(Errors::CalculationFail))
     }
 
-    pub fn calc_sol_amount(&self, rsol_amount: u64) -> Result<u64> {
+    pub fn calc_sol_amount(&self, lsd_token_amount: u64) -> Result<u64> {
         u64::try_from(
-            (rsol_amount as u128) * (self.rate as u128) / (StakeManager::CAL_BASE as u128),
+            (lsd_token_amount as u128) * (self.rate as u128) / (StakeManager::CAL_BASE as u128),
         )
         .map_err(|_| error!(Errors::CalculationFail))
     }
@@ -121,13 +123,13 @@ impl StakeManager {
         .map_err(|_| error!(Errors::CalculationFail))
     }
 
-    pub fn calc_rate(&self, sol_amount: u64, rsol_amount: u64) -> Result<u64> {
-        if sol_amount == 0 || rsol_amount == 0 {
+    pub fn calc_rate(&self, sol_amount: u64, lsd_token_amount: u64) -> Result<u64> {
+        if sol_amount == 0 || lsd_token_amount == 0 {
             return Ok(StakeManager::CAL_BASE);
         }
 
         u64::try_from(
-            (sol_amount as u128) * (StakeManager::CAL_BASE as u128) / (rsol_amount as u128),
+            (sol_amount as u128) * (StakeManager::CAL_BASE as u128) / (lsd_token_amount as u128),
         )
         .map_err(|_| error!(Errors::CalculationFail))
     }

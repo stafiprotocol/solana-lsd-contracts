@@ -48,7 +48,7 @@ pub struct EventStake {
     pub staker: Pubkey,
     pub mint_to: Pubkey,
     pub stake_amount: u64,
-    pub rsol_amount: u64,
+    pub lsd_token_amount: u64,
 }
 
 impl<'info> Stake<'info> {
@@ -62,7 +62,7 @@ impl<'info> Stake<'info> {
         let user_balance = self.from.lamports();
         require_gte!(user_balance, stake_amount, Errors::BalanceNotEnough);
 
-        let rsol_amount = self.stake_manager.calc_lsd_token_amount(stake_amount)?;
+        let lsd_token_amount = self.stake_manager.calc_lsd_token_amount(stake_amount)?;
 
         self.stake_manager.era_bond += stake_amount;
         self.stake_manager.active += stake_amount;
@@ -79,7 +79,7 @@ impl<'info> Stake<'info> {
             stake_amount,
         )?;
 
-        // mint rsol
+        // mint lsd token
         mint_to(
             CpiContext::new_with_signer(
                 self.token_program.to_account_info(),
@@ -94,7 +94,7 @@ impl<'info> Stake<'info> {
                     &[self.stake_manager.pool_seed_bump],
                 ]],
             ),
-            rsol_amount,
+            lsd_token_amount,
         )?;
 
         emit!(EventStake {
@@ -102,7 +102,7 @@ impl<'info> Stake<'info> {
             staker: self.from.key(),
             mint_to: self.mint_to.key(),
             stake_amount,
-            rsol_amount
+            lsd_token_amount
         });
         Ok(())
     }

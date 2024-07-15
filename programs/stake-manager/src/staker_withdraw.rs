@@ -69,6 +69,9 @@ impl<'info> Withdraw<'info> {
             return err!(Errors::PoolBalanceNotEnough);
         }
 
+        // disable unstake-account
+        self.unstake_account.amount = 0;
+
         transfer(
             CpiContext::new_with_signer(
                 self.system_program.to_account_info(),

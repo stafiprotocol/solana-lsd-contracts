@@ -4,10 +4,8 @@ use crate::Stack;
 use crate::StackFeeAccount;
 pub use crate::StakeManager;
 use anchor_lang::prelude::*;
-use anchor_spl::{
-    associated_token::AssociatedToken,
-    token::{Mint, TokenAccount},
-};
+use anchor_lang::solana_program::system_program;
+use anchor_spl::{associated_token::AssociatedToken, token::Mint};
 
 #[derive(Accounts)]
 pub struct InitializeStakeManager<'info> {
@@ -29,19 +27,9 @@ pub struct InitializeStakeManager<'info> {
     pub stake_pool: SystemAccount<'info>,
 
     #[account(
-        associated_token::mint = lsd_token_mint,
-        associated_token::authority = admin,
-    )]
-    pub platform_fee_recipient: Box<Account<'info, TokenAccount>>,
-
-    #[account(
-        associated_token::mint = lsd_token_mint,
-        associated_token::authority = stack.admin,
-    )]
-    pub stack_fee_recipient: Box<Account<'info, TokenAccount>>,
-
-    #[account(
-        zero,
+        init,
+        space = 8 + std::mem::size_of::<StackFeeAccount>(),
+        payer = rent_payer,
         rent_exempt = enforce,
         seeds = [
             &stake_manager.key().to_bytes(),
@@ -56,9 +44,16 @@ pub struct InitializeStakeManager<'info> {
     /// CHECK: todo
     pub validator: UncheckedAccount<'info>,
 
+    #[account(
+        mut,
+        owner = system_program::ID
+    )]
+    pub rent_payer: Signer<'info>,
+
     pub admin: Signer<'info>,
 
     pub associated_token_program: Program<'info, AssociatedToken>,
+    pub system_program: Program<'info, System>,
     pub clock: Sysvar<'info, Clock>,
     pub rent: Sysvar<'info, Rent>,
 }
