@@ -1,12 +1,12 @@
 [package]
-name = "stake-manager"
+name = "lsd-program"
 version = "0.1.0"
-description = "StaFi's solana lsd stake manager"
+description = "StaFi's solana lsd program"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "stake_manager_program"
+name = "lsd_program"
 
 [features]
 no-entrypoint = []
