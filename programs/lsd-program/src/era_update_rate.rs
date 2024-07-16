@@ -137,11 +137,14 @@ impl<'info> EraUpdateRate<'info> {
         let rate_change = self
             .stake_manager
             .calc_rate_change(self.stake_manager.rate, new_rate)?;
-        require_gte!(
-            self.stake_manager.rate_change_limit,
-            rate_change,
-            Errors::RateChangeOverLimit
-        );
+
+        if self.stake_manager.rate_change_limit > 0 {
+            require_gte!(
+                self.stake_manager.rate_change_limit,
+                rate_change,
+                Errors::RateChangeOverLimit
+            );
+        }
 
         self.stake_manager.era_process_data.old_active = 0;
         self.stake_manager.era_process_data.new_active = 0;
