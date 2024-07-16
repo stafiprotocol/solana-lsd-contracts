@@ -32,7 +32,7 @@ pub struct InitializeStakeManager<'info> {
         payer = rent_payer,
         rent_exempt = enforce,
         seeds = [
-            &stake_manager.key().to_bytes(),
+            &stack.key().to_bytes(),
             &lsd_token_mint.key().to_bytes(),
         ],
         bump,
