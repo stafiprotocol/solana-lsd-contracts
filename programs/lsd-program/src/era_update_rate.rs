@@ -44,7 +44,7 @@ pub struct EraUpdateRate<'info> {
     #[account(
         mut,
         seeds = [
-            &stake_manager.key().to_bytes(),
+            &stack.key().to_bytes(),
             &lsd_token_mint.key().to_bytes(),
         ],
         bump = stack_fee_account.bump,
