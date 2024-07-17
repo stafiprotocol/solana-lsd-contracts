@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 pub use crate::errors::Errors;
 use anchor_lang::prelude::*;
 
@@ -49,6 +51,7 @@ pub struct StakeManager {
     pub validators: Vec<Pubkey>,
     pub stake_accounts: Vec<Pubkey>,
     pub split_accounts: Vec<Pubkey>,
+    pub era_rates: VecDeque<EraRate>,
     pub era_process_data: EraProcessData,
 }
 
@@ -59,6 +62,12 @@ pub struct EraProcessData {
     pub old_active: u64,
     pub new_active: u64,
     pub pending_stake_accounts: Vec<Pubkey>,
+}
+
+#[derive(Clone, Debug, Default, AnchorSerialize, AnchorDeserialize)]
+pub struct EraRate {
+    pub era: u64,
+    pub rate: u64,
 }
 
 impl EraProcessData {
@@ -103,6 +112,7 @@ impl StakeManager {
     pub const DEFAULT_RATE_CHANGE_LIMIT: u64 = 500_000;
     pub const DEFAULT_STAKE_ACCOUNT_LEN_LIMIT: u64 = 100;
     pub const DEFAULT_SPLIT_ACCOUNT_LEN_LIMIT: u64 = 20;
+    pub const ERA_RATES_LEN_LIMIT: u64 = 10;
 
     pub fn calc_lsd_token_amount(&self, sol_amount: u64) -> Result<u64> {
         u64::try_from((sol_amount as u128) * (StakeManager::CAL_BASE as u128) / (self.rate as u128))

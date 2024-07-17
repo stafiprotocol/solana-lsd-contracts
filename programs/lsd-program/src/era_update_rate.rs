@@ -1,4 +1,4 @@
-use crate::{Errors, Stack, StackFeeAccount, StakeManager};
+use crate::{EraRate, Errors, Stack, StackFeeAccount, StakeManager};
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
@@ -151,8 +151,17 @@ impl<'info> EraUpdateRate<'info> {
         self.stake_manager.active = new_active;
         self.stake_manager.rate = new_rate;
 
+        if self.stake_manager.era_rates.len() >= StakeManager::ERA_RATES_LEN_LIMIT as usize {
+            self.stake_manager.era_rates.pop_front();
+        }
+        let latest_era = self.stake_manager.latest_era;
+        self.stake_manager.era_rates.push_back(EraRate {
+            era: latest_era,
+            rate: new_rate,
+        });
+
         emit!(EventEraUpdateRate {
-            era: self.stake_manager.latest_era,
+            era: latest_era,
             rate: new_rate,
             platform_fee: platform_fee,
             stack_fee: stack_fee,
