@@ -1034,7 +1034,9 @@
           {
             "name": "eraRates",
             "type": {
-              "defined": "VecDeque<EraRate>"
+              "vec": {
+                "defined": "EraRate"
+              }
             }
           },
           {

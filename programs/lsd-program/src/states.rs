@@ -1,5 +1,3 @@
-use std::collections::VecDeque;
-
 pub use crate::errors::Errors;
 use anchor_lang::prelude::*;
 
@@ -51,7 +49,7 @@ pub struct StakeManager {
     pub validators: Vec<Pubkey>,
     pub stake_accounts: Vec<Pubkey>,
     pub split_accounts: Vec<Pubkey>,
-    pub era_rates: VecDeque<EraRate>,
+    pub era_rates: Vec<EraRate>,
     pub era_process_data: EraProcessData,
 }
 

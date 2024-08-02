@@ -151,14 +151,14 @@ impl<'info> EraUpdateRate<'info> {
         self.stake_manager.active = new_active;
         self.stake_manager.rate = new_rate;
 
-        if self.stake_manager.era_rates.len() >= StakeManager::ERA_RATES_LEN_LIMIT as usize {
-            self.stake_manager.era_rates.pop_front();
-        }
         let latest_era = self.stake_manager.latest_era;
-        self.stake_manager.era_rates.push_back(EraRate {
+        self.stake_manager.era_rates.push(EraRate {
             era: latest_era,
             rate: new_rate,
         });
+        if self.stake_manager.era_rates.len() > StakeManager::ERA_RATES_LEN_LIMIT as usize {
+            self.stake_manager.era_rates.remove(0);
+        }
 
         emit!(EventEraUpdateRate {
             era: latest_era,

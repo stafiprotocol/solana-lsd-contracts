@@ -6,7 +6,6 @@ pub use crate::StakeManager;
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::system_program;
 use anchor_spl::{associated_token::AssociatedToken, token::Mint};
-use std::collections::VecDeque;
 
 #[derive(Accounts)]
 pub struct InitializeStakeManager<'info> {
@@ -105,7 +104,7 @@ impl<'info> InitializeStakeManager<'info> {
             validators: vec![self.validator.key()],
             stake_accounts: vec![],
             split_accounts: vec![],
-            era_rates: VecDeque::new(),
+            era_rates: vec![],
             era_process_data: EraProcessData {
                 need_bond: 0,
                 need_unbond: 0,
