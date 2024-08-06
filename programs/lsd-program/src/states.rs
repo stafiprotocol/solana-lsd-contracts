@@ -1,5 +1,6 @@
 pub use crate::errors::Errors;
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::stake::tools;
 
 #[account]
 #[derive(Debug)]
@@ -77,8 +78,12 @@ impl EraProcessData {
             && self.pending_stake_accounts.is_empty();
     }
 
+    pub fn need_skip_bond(&self) -> bool {
+        return self.need_bond > 0 && self.need_bond < tools::get_minimum_delegation().unwrap_or(1);
+    }
+
     pub fn need_bond(&self) -> bool {
-        return self.need_bond > 0;
+        return self.need_bond >= tools::get_minimum_delegation().unwrap_or(1);
     }
 
     pub fn need_unbond(&self) -> bool {

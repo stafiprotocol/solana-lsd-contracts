@@ -5,6 +5,7 @@ pub mod admin_stake_manager;
 pub mod era_bond;
 pub mod era_merge;
 pub mod era_new;
+pub mod era_skip_bond;
 pub mod era_unbond;
 pub mod era_update_active;
 pub mod era_update_rate;
@@ -23,6 +24,7 @@ pub use crate::admin_stake_manager::*;
 pub use crate::era_bond::*;
 pub use crate::era_merge::*;
 pub use crate::era_new::*;
+pub use crate::era_skip_bond::*;
 pub use crate::era_unbond::*;
 pub use crate::era_update_active::*;
 pub use crate::era_update_rate::*;
@@ -258,6 +260,14 @@ pub mod lsd_program {
     }
 
     pub fn era_bond(ctx: Context<EraBond>) -> Result<()> {
+        check_context(&ctx)?;
+
+        ctx.accounts.process()?;
+
+        Ok(())
+    }
+
+    pub fn era_skip_bond(ctx: Context<EraSkipBond>) -> Result<()> {
         check_context(&ctx)?;
 
         ctx.accounts.process()?;

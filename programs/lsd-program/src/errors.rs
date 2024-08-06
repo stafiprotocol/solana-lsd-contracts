@@ -89,6 +89,9 @@ pub enum Errors {
     #[msg("Era no need bond")]
     EraNoNeedBond,
 
+    #[msg("Era no need skip bond")]
+    EraNoNeedSkipBond,
+
     #[msg("Era no need unbond")]
     EraNoNeedUnBond,
 
