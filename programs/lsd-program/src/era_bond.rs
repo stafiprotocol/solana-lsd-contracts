@@ -7,6 +7,7 @@ use anchor_lang::{
         stake::{
             self,
             state::{Authorized, Lockup, StakeStateV2},
+            tools,
         },
         sysvar::stake_history,
     },
@@ -69,7 +70,9 @@ pub struct EventEraBond {
 impl<'info> EraBond<'info> {
     pub fn process(&mut self) -> Result<()> {
         require!(
-            self.stake_manager.era_process_data.need_bond(),
+            self.stake_manager
+                .era_process_data
+                .need_bond(tools::get_minimum_delegation()?),
             Errors::EraNoNeedBond
         );
 

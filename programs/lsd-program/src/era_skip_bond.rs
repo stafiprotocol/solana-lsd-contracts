@@ -1,5 +1,6 @@
 use crate::{Errors, StakeManager};
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::stake::tools;
 use anchor_spl::stake::Stake;
 
 #[derive(Accounts)]
@@ -19,8 +20,10 @@ pub struct EventEraSkipBond {
 impl<'info> EraSkipBond<'info> {
     pub fn process(&mut self) -> Result<()> {
         require!(
-            self.stake_manager.era_process_data.need_skip_bond(),
-            Errors::EraNoNeedBond
+            self.stake_manager
+                .era_process_data
+                .need_skip_bond(tools::get_minimum_delegation()?),
+            Errors::EraNoNeedSkipBond
         );
 
         let need_bond = self.stake_manager.era_process_data.need_bond;
