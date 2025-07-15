@@ -8,7 +8,7 @@ use anchor_spl::{
 #[derive(Accounts)]
 pub struct EraUpdateRate<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = stack @ Errors::StackNotMatch,
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -80,7 +80,7 @@ impl<'info> EraUpdateRate<'info> {
         };
 
         let platform_fee_raw = self.stake_manager.calc_platform_fee(reward)?;
-        let stack_fee = self.stack.calc_stack_fee(platform_fee_raw)?;
+        let stack_fee = self.stake_manager.calc_stack_fee(platform_fee_raw)?;
         let platform_fee = platform_fee_raw - stack_fee;
 
         if platform_fee > 0 {

@@ -3,7 +3,7 @@ use anchor_lang::{prelude::*, system_program};
 #[derive(Accounts)]
 pub struct TransferStakeManagerAdmin<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -23,7 +23,7 @@ impl<'info> TransferStakeManagerAdmin<'info> {
 #[derive(Accounts)]
 pub struct TransferBalancer<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -43,7 +43,7 @@ impl<'info> TransferBalancer<'info> {
 #[derive(Accounts)]
 pub struct SetMinStakeAmount<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -63,7 +63,7 @@ impl<'info> SetMinStakeAmount<'info> {
 #[derive(Accounts)]
 pub struct SetUnbondingDuration<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -83,7 +83,7 @@ impl<'info> SetUnbondingDuration<'info> {
 #[derive(Accounts)]
 pub struct SetPlatformFeeCommission<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -103,7 +103,7 @@ impl<'info> SetPlatformFeeCommission<'info> {
 #[derive(Accounts)]
 pub struct SetRateChangeLimit<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -126,7 +126,7 @@ impl<'info> SetRateChangeLimit<'info> {
 #[derive(Accounts)]
 pub struct AddValidator<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -154,7 +154,7 @@ impl<'info> AddValidator<'info> {
 #[derive(Accounts)]
 pub struct RemoveValidator<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -185,7 +185,7 @@ impl<'info> RemoveValidator<'info> {
 #[instruction(new_size: u32)]
 pub struct ReallocStakeManager<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch,
         realloc = new_size as usize,
         realloc::payer = rent_payer,

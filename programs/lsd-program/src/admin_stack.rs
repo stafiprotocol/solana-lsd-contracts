@@ -4,7 +4,7 @@ use anchor_lang::prelude::*;
 #[derive(Accounts)]
 pub struct TransferStackAdmin<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stack: Box<Account<'info, Stack>>,
@@ -24,7 +24,7 @@ impl<'info> TransferStackAdmin<'info> {
 #[derive(Accounts)]
 pub struct SetStackFeeCommission<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stack: Box<Account<'info, Stack>>,
@@ -44,7 +44,7 @@ impl<'info> SetStackFeeCommission<'info> {
 #[derive(Accounts)]
 pub struct SetPlatformStackFeeCommission<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = stack @ Errors::StackNotMatch,
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
@@ -69,7 +69,7 @@ impl<'info> SetPlatformStackFeeCommission<'info> {
 #[derive(Accounts)]
 pub struct AddEntrustedStakeManager<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stack: Box<Account<'info, Stack>>,
@@ -97,7 +97,7 @@ impl<'info> AddEntrustedStakeManager<'info> {
 #[derive(Accounts)]
 pub struct RemoveEntrustedStakeManager<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = admin @ Errors::AdminNotMatch
     )]
     pub stack: Box<Account<'info, Stack>>,

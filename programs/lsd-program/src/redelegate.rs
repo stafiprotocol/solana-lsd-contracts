@@ -13,7 +13,7 @@ use anchor_spl::stake::{withdraw, Stake, StakeAccount, Withdraw};
 #[derive(Accounts)]
 pub struct Redelegate<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = balancer @ Errors::BalancerNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,

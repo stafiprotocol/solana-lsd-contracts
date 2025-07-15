@@ -13,13 +13,6 @@ pub struct Stack {
 impl Stack {
     pub const DEFAULT_STACK_FEE_COMMISSION: u64 = 100_000_000;
     pub const DEFAULT_STAKE_MANAGERS_LEN_LIMIT: u64 = 20;
-
-    pub fn calc_stack_fee(&self, platform_fee_raw: u64) -> Result<u64> {
-        u64::try_from(
-            (platform_fee_raw as u128) * (self.stack_fee_commission as u128) / (1e9 as u128),
-        )
-        .map_err(|_| error!(Errors::CalculationFail))
-    }
 }
 
 #[account]
@@ -158,6 +151,13 @@ impl StakeManager {
 
         u64::try_from((diff as u128) * (StakeManager::CAL_BASE as u128) / (old_rate as u128))
             .map_err(|_| error!(Errors::CalculationFail))
+    }
+
+    pub fn calc_stack_fee(&self, platform_fee_raw: u64) -> Result<u64> {
+        u64::try_from(
+            (platform_fee_raw as u128) * (self.stack_fee_commission as u128) / (1e9 as u128),
+        )
+        .map_err(|_| error!(Errors::CalculationFail))
     }
 }
 

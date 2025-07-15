@@ -5,7 +5,7 @@ use anchor_spl::token::{burn, Burn, Mint, Token, TokenAccount};
 #[derive(Accounts)]
 pub struct Unstake<'info> {
     #[account(
-        mut, 
+        mut,
         has_one = lsd_token_mint @ Errors::MintAccountNotMatch
     )]
     pub stake_manager: Box<Account<'info, StakeManager>>,
