@@ -5,8 +5,6 @@ use anchor_lang::prelude::*;
 pub struct EraNew<'info> {
     #[account(mut)]
     pub stake_manager: Box<Account<'info, StakeManager>>,
-
-    pub clock: Sysvar<'info, Clock>,
 }
 
 #[event]
@@ -21,7 +19,7 @@ impl<'info> EraNew<'info> {
     pub fn process(&mut self) -> Result<()> {
         let new_era = self.stake_manager.latest_era + 1;
 
-        require_gte!(self.clock.epoch, new_era, Errors::EraIsLatest);
+        require_gte!(Clock::get().unwrap().epoch, new_era, Errors::EraIsLatest);
         require!(
             self.stake_manager.era_process_data.is_empty(),
             Errors::EraIsProcessing

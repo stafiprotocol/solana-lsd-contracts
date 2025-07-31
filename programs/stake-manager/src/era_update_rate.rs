@@ -1,9 +1,8 @@
-use crate::{EraRate, Errors, Stack, StackFeeAccount, StakeManager};
+use crate::{helper, EraRate, Errors, StackFeeAccount, StakeManager};
 use anchor_lang::prelude::*;
-use anchor_spl::{
-    associated_token::AssociatedToken,
-    token::{mint_to, Mint, MintTo, Token, TokenAccount},
-};
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token_interface::{mint_to, Mint, MintTo, TokenAccount, TokenInterface};
+use stack::Stack;
 
 #[derive(Accounts)]
 pub struct EraUpdateRate<'info> {
@@ -18,28 +17,28 @@ pub struct EraUpdateRate<'info> {
     #[account(
         seeds = [
             &stake_manager.key().to_bytes(),
-            StakeManager::POOL_SEED,
+            helper::STAKE_POOL_SEED,
         ],
         bump = stake_manager.pool_seed_bump
     )]
     pub stake_pool: SystemAccount<'info>,
 
     #[account(mut)]
-    pub lsd_token_mint: Box<Account<'info, Mint>>,
+    pub lsd_token_mint: Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
         mut,
         associated_token::mint = lsd_token_mint,
         associated_token::authority = stake_manager.admin,
     )]
-    pub platform_fee_recipient: Box<Account<'info, TokenAccount>>,
+    pub platform_fee_recipient: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         mut,
         associated_token::mint = lsd_token_mint,
         associated_token::authority = stack.admin,
     )]
-    pub stack_fee_recipient: Box<Account<'info, TokenAccount>>,
+    pub stack_fee_recipient: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         mut,
@@ -52,7 +51,7 @@ pub struct EraUpdateRate<'info> {
     pub stack_fee_account: Box<Account<'info, StackFeeAccount>>,
 
     pub associated_token_program: Program<'info, AssociatedToken>,
-    pub token_program: Program<'info, Token>,
+    pub token_program: Interface<'info, TokenInterface>,
 }
 
 #[event]
@@ -94,7 +93,7 @@ impl<'info> EraUpdateRate<'info> {
                     },
                     &[&[
                         &self.stake_manager.key().to_bytes(),
-                        StakeManager::POOL_SEED,
+                        helper::STAKE_POOL_SEED,
                         &[self.stake_manager.pool_seed_bump],
                     ]],
                 ),
@@ -114,7 +113,7 @@ impl<'info> EraUpdateRate<'info> {
                     },
                     &[&[
                         &self.stake_manager.key().to_bytes(),
-                        StakeManager::POOL_SEED,
+                        helper::STAKE_POOL_SEED,
                         &[self.stake_manager.pool_seed_bump],
                     ]],
                 ),

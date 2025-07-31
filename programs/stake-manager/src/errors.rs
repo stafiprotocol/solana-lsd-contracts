@@ -11,6 +11,9 @@ pub enum Errors {
     #[msg("Admin not match")]
     AdminNotMatch,
 
+    #[msg("Pending admin not match")]
+    PendingAdminNotMatch,
+
     #[msg("Balancer not match")]
     BalancerNotMatch,
 

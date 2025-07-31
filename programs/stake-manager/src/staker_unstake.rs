@@ -1,7 +1,6 @@
 use crate::{Errors, StakeManager, UnstakeAccount};
 use anchor_lang::{prelude::*, solana_program::system_program};
-use anchor_spl::token::{burn, Burn, Mint, Token, TokenAccount};
-
+use anchor_spl::token_interface::{burn, Burn, Mint, TokenAccount, TokenInterface};
 #[derive(Accounts)]
 pub struct Unstake<'info> {
     #[account(
@@ -11,13 +10,13 @@ pub struct Unstake<'info> {
     pub stake_manager: Box<Account<'info, StakeManager>>,
 
     #[account(mut)]
-    pub lsd_token_mint: Box<Account<'info, Mint>>,
+    pub lsd_token_mint: Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
         mut,
         token::mint = stake_manager.lsd_token_mint,
     )]
-    pub burn_lsd_token_from: Box<Account<'info, TokenAccount>>,
+    pub burn_lsd_token_from: Box<InterfaceAccount<'info, TokenAccount>>,
 
     pub burn_lsd_token_authority: Signer<'info>,
 
@@ -36,9 +35,7 @@ pub struct Unstake<'info> {
     pub rent_payer: Signer<'info>,
 
     pub system_program: Program<'info, System>,
-    pub token_program: Program<'info, Token>,
-    pub clock: Sysvar<'info, Clock>,
-    pub rent: Sysvar<'info, Rent>,
+    pub token_program: Interface<'info, TokenInterface>,
 }
 
 #[event]
@@ -96,7 +93,7 @@ impl<'info> Unstake<'info> {
             stake_manager: self.stake_manager.key(),
             recipient: self.burn_lsd_token_from.owner,
             amount: sol_amount,
-            created_epoch: self.clock.epoch,
+            created_epoch: Clock::get().unwrap().epoch,
         });
 
         emit!(EventUnstake {

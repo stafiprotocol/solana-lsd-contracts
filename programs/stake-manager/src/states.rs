@@ -3,22 +3,9 @@ use anchor_lang::prelude::*;
 
 #[account]
 #[derive(Debug)]
-pub struct Stack {
-    pub admin: Pubkey,
-    pub stack_fee_commission: u64, // decimals 9
-    pub stake_managers_len_limit: u64,
-    pub entrusted_stake_managers: Vec<Pubkey>,
-}
-
-impl Stack {
-    pub const DEFAULT_STACK_FEE_COMMISSION: u64 = 100_000_000;
-    pub const DEFAULT_STAKE_MANAGERS_LEN_LIMIT: u64 = 20;
-}
-
-#[account]
-#[derive(Debug)]
 pub struct StakeManager {
     pub admin: Pubkey,
+    pub pending_admin: Pubkey,
     pub balancer: Pubkey,
     pub stack: Pubkey,
     pub lsd_token_mint: Pubkey,
@@ -97,8 +84,6 @@ impl EraProcessData {
 }
 
 impl StakeManager {
-    pub const POOL_SEED: &'static [u8] = b"pool_seed";
-
     pub const DEFAULT_UNBONDING_DURATION: u64 = 2;
     pub const CAL_BASE: u64 = 1_000_000_000;
     pub const DEFAULT_RATE: u64 = 1_000_000_000;

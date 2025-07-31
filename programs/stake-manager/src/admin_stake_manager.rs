@@ -1,5 +1,6 @@
 use crate::{Errors, StakeManager};
 use anchor_lang::{prelude::*, system_program};
+use stack::Stack;
 #[derive(Accounts)]
 pub struct TransferStakeManagerAdmin<'info> {
     #[account(
@@ -13,9 +14,30 @@ pub struct TransferStakeManagerAdmin<'info> {
 
 impl<'info> TransferStakeManagerAdmin<'info> {
     pub fn process(&mut self, new_admin: Pubkey) -> Result<()> {
-        self.stake_manager.admin = new_admin;
+        self.stake_manager.pending_admin = new_admin;
 
         msg!("TransferStakeManagerAdmin: new admin: {}", new_admin);
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct AcceptStakeManagerAdmin<'info> {
+    pub pending_admin: Signer<'info>,
+
+    #[account(
+        mut,
+        has_one = pending_admin @ Errors::PendingAdminNotMatch
+    )]
+    pub stake_manager: Box<Account<'info, StakeManager>>,
+}
+
+impl<'info> AcceptStakeManagerAdmin<'info> {
+    pub fn process(&mut self) -> Result<()> {
+        self.stake_manager.admin = self.stake_manager.pending_admin;
+        self.stake_manager.pending_admin = Pubkey::default();
+
+        msg!("AcceptAdmin: {}", self.stake_manager.admin);
         Ok(())
     }
 }
@@ -96,6 +118,31 @@ impl<'info> SetPlatformFeeCommission<'info> {
         self.stake_manager.platform_fee_commission = platform_fee_commission;
 
         msg!("SetPlatformFeeCommission: {}", platform_fee_commission);
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct SetPlatformStackFeeCommission<'info> {
+    #[account(
+        mut,
+        has_one = stack @ Errors::StackNotMatch,
+    )]
+    pub stake_manager: Box<Account<'info, StakeManager>>,
+
+    #[account(
+        has_one = admin @ Errors::AdminNotMatch
+    )]
+    pub stack: Box<Account<'info, Stack>>,
+
+    pub admin: Signer<'info>,
+}
+
+impl<'info> SetPlatformStackFeeCommission<'info> {
+    pub fn process(&mut self, stack_fee_commission: u64) -> Result<()> {
+        self.stake_manager.stack_fee_commission = stack_fee_commission;
+
+        msg!("SetPlatformStackFeeCommission: {}", stack_fee_commission);
         Ok(())
     }
 }

@@ -1,0 +1,19 @@
+[package]
+name = "stack"
+version = "0.1.0"
+description = "StaFi's solana lsd stack program"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+struct = []
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.29.0"

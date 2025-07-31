@@ -1,8 +1,8 @@
-use crate::{Errors, StakeManager};
+use crate::{helper, Errors, StakeManager};
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::system_program;
 use anchor_lang::system_program::{transfer, Transfer};
-use anchor_spl::token::{mint_to, Mint, MintTo, Token, TokenAccount};
+use anchor_spl::token_interface::{mint_to, Mint, MintTo, TokenAccount, TokenInterface};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
@@ -16,7 +16,7 @@ pub struct Stake<'info> {
         mut,
         seeds = [
             &stake_manager.key().to_bytes(),
-            StakeManager::POOL_SEED,
+            helper::STAKE_POOL_SEED,
         ],
         bump = stake_manager.pool_seed_bump
     )]
@@ -30,16 +30,16 @@ pub struct Stake<'info> {
     pub from: Signer<'info>,
 
     #[account(mut)]
-    pub lsd_token_mint: Box<Account<'info, Mint>>,
+    pub lsd_token_mint: Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
         mut,
         token::mint = stake_manager.lsd_token_mint
     )]
-    pub mint_to: Box<Account<'info, TokenAccount>>,
+    pub mint_to: Box<InterfaceAccount<'info, TokenAccount>>,
 
     pub system_program: Program<'info, System>,
-    pub token_program: Program<'info, Token>,
+    pub token_program: Interface<'info, TokenInterface>,
 }
 
 #[event]
@@ -90,7 +90,7 @@ impl<'info> Stake<'info> {
                 },
                 &[&[
                     &self.stake_manager.key().to_bytes(),
-                    StakeManager::POOL_SEED,
+                    helper::STAKE_POOL_SEED,
                     &[self.stake_manager.pool_seed_bump],
                 ]],
             ),

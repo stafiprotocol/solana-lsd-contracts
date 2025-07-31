@@ -1,4 +1,4 @@
-use crate::{Errors, StakeManager, UnstakeAccount};
+use crate::{helper, Errors, StakeManager, UnstakeAccount};
 use anchor_lang::prelude::*;
 use anchor_lang::system_program::{transfer, Transfer};
 
@@ -11,7 +11,7 @@ pub struct Withdraw<'info> {
         mut,
         seeds = [
             &stake_manager.key().to_bytes(),
-            StakeManager::POOL_SEED,
+            helper::STAKE_POOL_SEED,
         ],
         bump = stake_manager.pool_seed_bump
     )]
@@ -29,7 +29,6 @@ pub struct Withdraw<'info> {
     )]
     pub recipient: SystemAccount<'info>,
 
-    pub clock: Sysvar<'info, Clock>,
     pub system_program: Program<'info, System>,
 }
 
@@ -56,7 +55,7 @@ impl<'info> Withdraw<'info> {
         );
 
         require_gte!(
-            self.clock.epoch,
+            Clock::get().unwrap().epoch,
             self.unstake_account.created_epoch + self.stake_manager.unbonding_duration,
             Errors::UnstakeAccountNotClaimable
         );
@@ -64,8 +63,7 @@ impl<'info> Withdraw<'info> {
         let pool_balance = self.stake_pool.lamports();
         let withdraw_amount = self.unstake_account.amount;
 
-        let available_for_withdraw = pool_balance - self.stake_manager.rent_exempt_for_pool_acc;
-        if withdraw_amount > available_for_withdraw {
+        if withdraw_amount + self.stake_manager.rent_exempt_for_pool_acc > pool_balance {
             return err!(Errors::PoolBalanceNotEnough);
         }
 
@@ -81,7 +79,7 @@ impl<'info> Withdraw<'info> {
                 },
                 &[&[
                     &self.stake_manager.key().to_bytes(),
-                    StakeManager::POOL_SEED,
+                    helper::STAKE_POOL_SEED,
                     &[self.stake_manager.pool_seed_bump],
                 ]],
             ),

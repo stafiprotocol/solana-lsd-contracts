@@ -1,6 +1,5 @@
 use anchor_lang::{prelude::*, Bumps};
 
-pub mod admin_stack;
 pub mod admin_stake_manager;
 pub mod era_bond;
 pub mod era_merge;
@@ -11,15 +10,15 @@ pub mod era_update_active;
 pub mod era_update_rate;
 pub mod era_withdraw;
 pub mod errors;
-pub mod initialize_stack;
+pub mod helper;
 pub mod initialize_stake_manager;
+pub mod metadata;
 pub mod redelegate;
 pub mod staker_stake;
 pub mod staker_unstake;
 pub mod staker_withdraw;
 pub mod states;
 
-pub use crate::admin_stack::*;
 pub use crate::admin_stake_manager::*;
 pub use crate::era_bond::*;
 pub use crate::era_merge::*;
@@ -30,8 +29,9 @@ pub use crate::era_update_active::*;
 pub use crate::era_update_rate::*;
 pub use crate::era_withdraw::*;
 pub use crate::errors::Errors;
-pub use crate::initialize_stack::*;
+pub use crate::helper::*;
 pub use crate::initialize_stake_manager::*;
+pub use crate::metadata::*;
 pub use crate::redelegate::*;
 pub use crate::staker_stake::*;
 pub use crate::staker_unstake::*;
@@ -53,49 +53,28 @@ fn check_context<T: Bumps>(ctx: &Context<T>) -> Result<()> {
 }
 
 #[program]
-pub mod lsd_program {
+pub mod stake_manager {
 
     use super::*;
 
     // initialize account
 
-    pub fn initialize_stack(ctx: Context<InitializeStack>) -> Result<()> {
+    pub fn initialize_stake_manager(
+        ctx: Context<InitializeStakeManager>,
+        stake_manager_index: u8,
+    ) -> Result<()> {
         check_context(&ctx)?;
 
-        ctx.accounts.process()?;
-
-        Ok(())
-    }
-
-    pub fn initialize_stake_manager(ctx: Context<InitializeStakeManager>) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts
-            .process(ctx.bumps.stake_pool, ctx.bumps.stack_fee_account)?;
+        ctx.accounts.process(
+            stake_manager_index,
+            ctx.bumps.stake_pool,
+            ctx.bumps.stack_fee_account,
+        )?;
 
         Ok(())
     }
 
     // admin of stack
-
-    pub fn transfer_stack_admin(ctx: Context<TransferStackAdmin>, new_admin: Pubkey) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(new_admin)?;
-
-        Ok(())
-    }
-
-    pub fn set_stack_fee_commission(
-        ctx: Context<SetStackFeeCommission>,
-        stack_fee_commission: u64,
-    ) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(stack_fee_commission)?;
-
-        Ok(())
-    }
 
     pub fn set_platform_stack_fee_commission(
         ctx: Context<SetPlatformStackFeeCommission>,
@@ -104,28 +83,6 @@ pub mod lsd_program {
         check_context(&ctx)?;
 
         ctx.accounts.process(stack_fee_commission)?;
-
-        Ok(())
-    }
-
-    pub fn add_entrusted_stake_manager(
-        ctx: Context<AddEntrustedStakeManager>,
-        stake_manager: Pubkey,
-    ) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(stake_manager)?;
-
-        Ok(())
-    }
-
-    pub fn remove_entrusted_stake_manager(
-        ctx: Context<RemoveEntrustedStakeManager>,
-        stake_manager: Pubkey,
-    ) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(stake_manager)?;
 
         Ok(())
     }
@@ -139,6 +96,14 @@ pub mod lsd_program {
         check_context(&ctx)?;
 
         ctx.accounts.process(new_admin)?;
+
+        Ok(())
+    }
+
+    pub fn accept_stake_manager_admin(ctx: Context<AcceptStakeManagerAdmin>) -> Result<()> {
+        check_context(&ctx)?;
+
+        ctx.accounts.process()?;
 
         Ok(())
     }
@@ -211,6 +176,15 @@ pub mod lsd_program {
         ctx.accounts.process(new_size)?;
 
         Ok(())
+    }
+
+    // metadata
+    pub fn create_metadata(
+        ctx: Context<CreateMetadataV1>,
+        params: CreateMetadataParams,
+    ) -> Result<()> {
+        check_context(&ctx)?;
+        ctx.accounts.process(params)
     }
 
     // balancer
