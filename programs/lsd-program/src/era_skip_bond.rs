@@ -1,14 +1,11 @@
 use crate::{Errors, StakeManager};
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::stake::tools;
-use anchor_spl::stake::Stake;
 
 #[derive(Accounts)]
 pub struct EraSkipBond<'info> {
     #[account(mut)]
     pub stake_manager: Box<Account<'info, StakeManager>>,
-
-    pub stake_program: Program<'info, Stake>,
 }
 
 #[event]
