@@ -146,6 +146,9 @@ pub enum Errors {
     #[msg("Mint to owner not match")]
     MintToOwnerNotMatch,
 
+    #[msg("Mint not match")]
+    MintNotMatch,
+
     #[msg("Stake accounts len over limit")]
     StakeAccountsLenOverLimit,
 }

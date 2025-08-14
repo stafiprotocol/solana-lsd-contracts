@@ -1,12 +1,9 @@
 use crate::{helper, Errors, StakeManager};
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar::stake_history;
-use anchor_lang::{
-    solana_program::{
-        program::invoke_signed,
-        stake::{self, state::StakeStateV2},
-    },
-    system_program,
+use anchor_lang::solana_program::{
+    program::invoke_signed,
+    stake::{self, state::StakeStateV2},
 };
 use anchor_spl::stake::{
     deactivate_stake as solana_deactivate_stake, withdraw,
@@ -42,10 +39,7 @@ pub struct EraUnbond<'info> {
     #[account(mut)]
     pub validator: UncheckedAccount<'info>,
 
-    #[account(
-        mut,
-        owner = system_program::ID
-    )]
+    #[account(mut)]
     pub rent_payer: Signer<'info>,
 
     pub clock: Sysvar<'info, Clock>,

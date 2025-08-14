@@ -1,5 +1,5 @@
 use crate::{Errors, StakeManager, UnstakeAccount};
-use anchor_lang::{prelude::*, solana_program::system_program};
+use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{burn, Burn, Mint, TokenAccount, TokenInterface};
 #[derive(Accounts)]
 pub struct Unstake<'info> {
@@ -28,10 +28,7 @@ pub struct Unstake<'info> {
     )]
     pub unstake_account: Box<Account<'info, UnstakeAccount>>,
 
-    #[account(
-        mut,
-        owner = system_program::ID
-    )]
+    #[account(mut)]
     pub rent_payer: Signer<'info>,
 
     pub system_program: Program<'info, System>,

@@ -14,6 +14,20 @@ pub struct EraUpdateRate<'info> {
 
     pub stack: Box<Account<'info, Stack>>,
 
+    /// CHECK: stake manager
+    #[account(
+        mut,
+        address = stake_manager.admin @Errors::AdminNotMatch
+    )]
+    pub stake_manager_admin: AccountInfo<'info>,
+
+    /// CHECK: stake manager
+    #[account(
+        mut,
+        address = stack.admin @Errors::AdminNotMatch
+    )]
+    pub stack_admin: AccountInfo<'info>,
+
     #[account(
         seeds = [
             &stake_manager.key().to_bytes(),
@@ -23,20 +37,27 @@ pub struct EraUpdateRate<'info> {
     )]
     pub stake_pool: SystemAccount<'info>,
 
-    #[account(mut)]
+    #[account(
+        mut,
+        address = stake_manager.lsd_token_mint @Errors::MintNotMatch
+    )]
     pub lsd_token_mint: Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
-        mut,
+        init_if_needed,
+        payer  = rent_payer,
         associated_token::mint = lsd_token_mint,
-        associated_token::authority = stake_manager.admin,
+        associated_token::authority = stake_manager_admin,
+        associated_token::token_program = token_program,
     )]
     pub platform_fee_recipient: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
-        mut,
+        init_if_needed,
+        payer  = rent_payer,
         associated_token::mint = lsd_token_mint,
-        associated_token::authority = stack.admin,
+        associated_token::authority = stack_admin,
+        associated_token::token_program = token_program,
     )]
     pub stack_fee_recipient: Box<InterfaceAccount<'info, TokenAccount>>,
 
@@ -50,8 +71,12 @@ pub struct EraUpdateRate<'info> {
     )]
     pub stack_fee_account: Box<Account<'info, StackFeeAccount>>,
 
+    #[account(mut)]
+    pub rent_payer: Signer<'info>,
+
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub token_program: Interface<'info, TokenInterface>,
+    pub system_program: Program<'info, System>,
 }
 
 #[event]

@@ -1,7 +1,7 @@
 use crate::{helper, Errors, StakeManager};
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::system_program;
 use anchor_lang::system_program::{transfer, Transfer};
+use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token_interface::{mint_to, Mint, MintTo, TokenAccount, TokenInterface};
 
 #[derive(Accounts)]
@@ -22,23 +22,26 @@ pub struct Stake<'info> {
     )]
     pub stake_pool: SystemAccount<'info>,
 
-    #[account(
-        mut,
-        owner = system_program::ID,
-        address = mint_to.owner @ Errors::MintToOwnerNotMatch
-    )]
+    #[account(mut)]
     pub from: Signer<'info>,
+
+    #[account(mut)]
+    pub rent_payer: Signer<'info>,
 
     #[account(mut)]
     pub lsd_token_mint: Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
-        mut,
-        token::mint = stake_manager.lsd_token_mint
+        init_if_needed,
+        payer  = rent_payer,
+        associated_token::mint = lsd_token_mint,
+        associated_token::authority = from,
+        associated_token::token_program = token_program,
     )]
     pub mint_to: Box<InterfaceAccount<'info, TokenAccount>>,
 
     pub system_program: Program<'info, System>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub token_program: Interface<'info, TokenInterface>,
 }
 

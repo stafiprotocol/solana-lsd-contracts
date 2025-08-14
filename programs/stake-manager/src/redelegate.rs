@@ -1,12 +1,9 @@
 use crate::{helper, Errors, StakeManager};
 use anchor_lang::prelude::*;
-use anchor_lang::{
-    solana_program::{
-        program::invoke_signed,
-        stake::{self, state::StakeStateV2},
-        sysvar::stake_history,
-    },
-    system_program,
+use anchor_lang::solana_program::{
+    program::invoke_signed,
+    stake::{self, state::StakeStateV2},
+    sysvar::stake_history,
 };
 use anchor_spl::stake::{withdraw, Stake, StakeAccount, Withdraw};
 
@@ -52,10 +49,7 @@ pub struct Redelegate<'info> {
     )]
     pub to_stake_account: Account<'info, StakeAccount>,
 
-    #[account(
-        mut,
-        owner = system_program::ID
-    )]
+    #[account(mut)]
     pub rent_payer: Signer<'info>,
 
     pub clock: Sysvar<'info, Clock>,
