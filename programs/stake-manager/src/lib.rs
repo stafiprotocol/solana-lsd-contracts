@@ -108,64 +108,13 @@ pub mod stake_manager {
         Ok(())
     }
 
-    pub fn transfer_balancer(ctx: Context<TransferBalancer>, new_balancer: Pubkey) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(new_balancer)?;
-
-        Ok(())
-    }
-
-    pub fn set_min_stake_amount(ctx: Context<SetMinStakeAmount>, amount: u64) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(amount)?;
-
-        Ok(())
-    }
-
-    pub fn set_unbonding_duration(ctx: Context<SetUnbondingDuration>, duration: u64) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(duration)?;
-
-        Ok(())
-    }
-
-    pub fn set_rate_change_limit(
-        ctx: Context<SetRateChangeLimit>,
-        rate_change_limit: u64,
+    pub fn config_stake_manager(
+        ctx: Context<ConfigStakeManager>,
+        params: ConfigStakeManagerParams,
     ) -> Result<()> {
         check_context(&ctx)?;
 
-        ctx.accounts.process(rate_change_limit)?;
-
-        Ok(())
-    }
-
-    pub fn set_platform_fee_commission(
-        ctx: Context<SetPlatformFeeCommission>,
-        protocol_fee_commission: u64,
-    ) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(protocol_fee_commission)?;
-
-        Ok(())
-    }
-
-    pub fn add_validator(ctx: Context<AddValidator>, new_validator: Pubkey) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(new_validator)?;
-
-        Ok(())
-    }
-
-    pub fn remove_validator(ctx: Context<RemoveValidator>, remove_validator: Pubkey) -> Result<()> {
-        check_context(&ctx)?;
-
-        ctx.accounts.process(remove_validator)?;
+        ctx.accounts.process(params)?;
 
         Ok(())
     }
