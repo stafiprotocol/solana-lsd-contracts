@@ -91,7 +91,17 @@ impl<'info> EraUnbond<'info> {
             Errors::ValidatorNotMatch
         );
 
+        let min_delegation = tools::get_minimum_delegation()?;
         let total_need_unbond = self.stake_manager.era_process_data.need_unbond;
+
+        // skip split if dst amount less than min delegation
+        if total_need_unbond < min_delegation {
+            self.stake_manager.era_process_data.need_unbond = 0;
+            self.stake_manager.era_process_data.pending_unbond = total_need_unbond;
+            self.stake_manager.era_unbond += total_need_unbond;
+
+            return Ok(());
+        }
 
         let (will_deactive_account, will_deactive_amount) = if delegation.stake <= total_need_unbond
         {
@@ -122,8 +132,7 @@ impl<'info> EraUnbond<'info> {
 
             (self.from_stake_account.to_account_info(), delegation.stake)
         } else {
-            // skip split if less than min delegation
-            let min_delegation = tools::get_minimum_delegation()?;
+            // skip split if src remaining less than min delegation
             if delegation.stake - total_need_unbond < min_delegation {
                 self.stake_manager.era_process_data.need_unbond = 0;
                 self.stake_manager.era_process_data.pending_unbond = total_need_unbond;
