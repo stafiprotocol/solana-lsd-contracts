@@ -51,6 +51,16 @@ impl<'info> EraUpdateActive<'info> {
 
         self.stake_manager.era_process_data.new_active += delegation.stake;
 
+        if self
+            .stake_manager
+            .era_process_data
+            .pending_stake_accounts
+            .is_empty()
+        {
+            self.stake_manager.era_process_data.new_active -=
+                self.stake_manager.era_process_data.pending_unbond;
+        }
+
         emit!(EventEraUpdateActive {
             era: self.stake_manager.latest_era,
             stake_account: self.stake_account.key(),

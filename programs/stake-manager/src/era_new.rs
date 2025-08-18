@@ -45,6 +45,7 @@ impl<'info> EraNew<'info> {
         self.stake_manager.era_process_data = EraProcessData {
             need_bond,
             need_unbond,
+            pending_unbond: 0,
             old_active: self.stake_manager.active,
             new_active: 0,
             pending_stake_accounts: self.stake_manager.stake_accounts.clone(),

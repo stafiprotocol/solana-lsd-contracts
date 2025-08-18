@@ -38,7 +38,7 @@ pub use crate::staker_unstake::*;
 pub use crate::staker_withdraw::*;
 pub use crate::states::*;
 
-declare_id!("795MBfkwwtAX4fWiFqZcJK8D91P9tqqtiSRrSNhBvGzq");
+declare_id!("HQHnPC158TLWsENn1TLvk3LG4wwkfM2QTxm9fvrmW26F");
 
 fn check_context<T: Bumps>(ctx: &Context<T>) -> Result<()> {
     if !check_id(ctx.program_id) {

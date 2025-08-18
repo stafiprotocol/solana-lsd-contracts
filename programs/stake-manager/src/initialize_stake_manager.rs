@@ -12,7 +12,7 @@ use stack::Stack;
 pub struct InitializeStakeManager<'info> {
     #[account(
         init,
-        space = 16384,
+        space = 10240,
         payer = rent_payer,
         rent_exempt = enforce,
         seeds = [
@@ -84,26 +84,12 @@ impl<'info> InitializeStakeManager<'info> {
         pool_seed_bump: u8,
         stack_fee_account_seed_bump: u8,
     ) -> Result<()> {
-        require_keys_neq!(self.stake_manager.key(), self.stake_pool.key());
-
         let rent_exempt_for_pool_acc = self.rent.minimum_balance(0);
         require_eq!(
             self.stake_pool.lamports(),
             rent_exempt_for_pool_acc,
             Errors::RentNotEnough
         );
-
-        require!(
-            self.lsd_token_mint
-                .mint_authority
-                .contains(&self.stake_pool.key()),
-            Errors::MintAuthorityNotMatch
-        );
-        require!(
-            self.lsd_token_mint.freeze_authority.is_none(),
-            Errors::FreezeAuthorityNotMatch
-        );
-        require!(self.lsd_token_mint.supply == 0, Errors::MintSupplyNotEmpty);
 
         self.stake_manager.set_inner(StakeManager {
             admin: self.admin.key(),
@@ -133,6 +119,7 @@ impl<'info> InitializeStakeManager<'info> {
             era_process_data: EraProcessData {
                 need_bond: 0,
                 need_unbond: 0,
+                pending_unbond: 0,
                 old_active: 0,
                 new_active: 0,
                 pending_stake_accounts: vec![],

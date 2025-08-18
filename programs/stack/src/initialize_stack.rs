@@ -2,7 +2,7 @@ pub use crate::errors::Errors;
 use crate::Stack;
 use anchor_lang::prelude::*;
 
-pub const STACK_SEED: &'static [u8] = b"stake_manager_seed";
+pub const STACK_SEED: &'static [u8] = b"stack_seed";
 #[derive(Accounts)]
 #[instruction(stack_index: u8)]
 pub struct InitializeStack<'info> {

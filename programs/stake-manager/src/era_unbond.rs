@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::sysvar::stake_history;
 use anchor_lang::solana_program::{
     program::invoke_signed,
-    stake::{self, state::StakeStateV2},
+    stake::{self, state::StakeStateV2, tools},
 };
 use anchor_spl::stake::{
     deactivate_stake as solana_deactivate_stake, withdraw,
@@ -122,6 +122,16 @@ impl<'info> EraUnbond<'info> {
 
             (self.from_stake_account.to_account_info(), delegation.stake)
         } else {
+            // skip split if less than min delegation
+            let min_delegation = tools::get_minimum_delegation()?;
+            if delegation.stake - total_need_unbond < min_delegation {
+                self.stake_manager.era_process_data.need_unbond = 0;
+                self.stake_manager.era_process_data.pending_unbond = total_need_unbond;
+                self.stake_manager.era_unbond += total_need_unbond;
+
+                return Ok(());
+            }
+
             // split
             let split_instruction = stake::instruction::split(
                 self.from_stake_account.to_account_info().key,

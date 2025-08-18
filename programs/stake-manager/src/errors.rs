@@ -134,15 +134,6 @@ pub enum Errors {
     #[msg("Mint account not match")]
     MintAccountNotMatch,
 
-    #[msg("Mint authority not match")]
-    MintAuthorityNotMatch,
-
-    #[msg("Freeze authority not match")]
-    FreezeAuthorityNotMatch,
-
-    #[msg("Mint supply not empty")]
-    MintSupplyNotEmpty,
-
     #[msg("Mint to owner not match")]
     MintToOwnerNotMatch,
 

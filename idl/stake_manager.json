@@ -1,33 +1,7 @@
 {
   "version": "0.1.0",
-  "name": "lsd_program",
+  "name": "stake_manager",
   "instructions": [
-    {
-      "name": "initializeStack",
-      "accounts": [
-        {
-          "name": "stack",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "rentPayer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
     {
       "name": "initializeStakeManager",
       "accounts": [
@@ -53,7 +27,7 @@
         },
         {
           "name": "lsdTokenMint",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -72,7 +46,7 @@
           "isSigner": true
         },
         {
-          "name": "associatedTokenProgram",
+          "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -82,57 +56,15 @@
           "isSigner": false
         },
         {
-          "name": "clock",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "rent",
           "isMut": false,
           "isSigner": false
         }
       ],
-      "args": []
-    },
-    {
-      "name": "transferStackAdmin",
-      "accounts": [
-        {
-          "name": "stack",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
       "args": [
         {
-          "name": "newAdmin",
-          "type": "publicKey"
-        }
-      ]
-    },
-    {
-      "name": "setStackFeeCommission",
-      "accounts": [
-        {
-          "name": "stack",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "stackFeeCommission",
-          "type": "u64"
+          "name": "stakeManagerIndex",
+          "type": "u8"
         }
       ]
     },
@@ -163,48 +95,6 @@
       ]
     },
     {
-      "name": "addEntrustedStakeManager",
-      "accounts": [
-        {
-          "name": "stack",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "stakeManager",
-          "type": "publicKey"
-        }
-      ]
-    },
-    {
-      "name": "removeEntrustedStakeManager",
-      "accounts": [
-        {
-          "name": "stack",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "stakeManager",
-          "type": "publicKey"
-        }
-      ]
-    },
-    {
       "name": "transferStakeManagerAdmin",
       "accounts": [
         {
@@ -226,28 +116,23 @@
       ]
     },
     {
-      "name": "transferBalancer",
+      "name": "acceptStakeManagerAdmin",
       "accounts": [
+        {
+          "name": "pendingAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
         {
           "name": "stakeManager",
           "isMut": true,
           "isSigner": false
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
         }
       ],
-      "args": [
-        {
-          "name": "newBalancer",
-          "type": "publicKey"
-        }
-      ]
+      "args": []
     },
     {
-      "name": "setMinStakeAmount",
+      "name": "configStakeManager",
       "accounts": [
         {
           "name": "stakeManager",
@@ -262,113 +147,10 @@
       ],
       "args": [
         {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "setUnbondingDuration",
-      "accounts": [
-        {
-          "name": "stakeManager",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "duration",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "setRateChangeLimit",
-      "accounts": [
-        {
-          "name": "stakeManager",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "rateChangeLimit",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "setPlatformFeeCommission",
-      "accounts": [
-        {
-          "name": "stakeManager",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "protocolFeeCommission",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "addValidator",
-      "accounts": [
-        {
-          "name": "stakeManager",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "newValidator",
-          "type": "publicKey"
-        }
-      ]
-    },
-    {
-      "name": "removeValidator",
-      "accounts": [
-        {
-          "name": "stakeManager",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "admin",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "removeValidator",
-          "type": "publicKey"
+          "name": "params",
+          "type": {
+            "defined": "ConfigStakeManagerParams"
+          }
         }
       ]
     },
@@ -400,6 +182,69 @@
         {
           "name": "newSize",
           "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "createMetadata",
+      "accounts": [
+        {
+          "name": "feeAndRentPayer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "admin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "stakeManager",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stakePool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "lsdTokenMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "metadataAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "metadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "sysvarInstruction",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "CreateMetadataParams"
+          }
         }
       ]
     },
@@ -498,6 +343,11 @@
           "isSigner": true
         },
         {
+          "name": "rentPayer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
           "name": "lsdTokenMint",
           "isMut": true,
           "isSigner": false
@@ -509,6 +359,11 @@
         },
         {
           "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -567,16 +422,6 @@
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": [
@@ -610,11 +455,6 @@
           "isSigner": false
         },
         {
-          "name": "clock",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -628,11 +468,6 @@
         {
           "name": "stakeManager",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "clock",
-          "isMut": false,
           "isSigner": false
         }
       ],
@@ -754,11 +589,6 @@
           "isSigner": false
         },
         {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "stakeHistory",
           "isMut": false,
           "isSigner": false
@@ -806,6 +636,16 @@
           "isSigner": false
         },
         {
+          "name": "stakeManagerAdmin",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stackAdmin",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "stakePool",
           "isMut": false,
           "isSigner": false
@@ -831,12 +671,22 @@
           "isSigner": false
         },
         {
+          "name": "rentPayer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
           "name": "associatedTokenProgram",
           "isMut": false,
           "isSigner": false
         },
         {
           "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
           "isMut": false,
           "isSigner": false
         }
@@ -923,7 +773,7 @@
   ],
   "accounts": [
     {
-      "name": "Stack",
+      "name": "StakeManager",
       "type": {
         "kind": "struct",
         "fields": [
@@ -932,29 +782,7 @@
             "type": "publicKey"
           },
           {
-            "name": "stackFeeCommission",
-            "type": "u64"
-          },
-          {
-            "name": "stakeManagersLenLimit",
-            "type": "u64"
-          },
-          {
-            "name": "entrustedStakeManagers",
-            "type": {
-              "vec": "publicKey"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "StakeManager",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "admin",
+            "name": "pendingAdmin",
             "type": "publicKey"
           },
           {
@@ -1107,6 +935,76 @@
   ],
   "types": [
     {
+      "name": "ConfigStakeManagerParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "minStakeAmount",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "platformFeeCommission",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "unbondingDuration",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "rateChangeLimit",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "balancer",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "addValidator",
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "removeValidator",
+            "type": {
+              "option": "publicKey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateMetadataParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "tokenName",
+            "type": "string"
+          },
+          {
+            "name": "tokenSymbol",
+            "type": "string"
+          },
+          {
+            "name": "tokenUri",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
       "name": "EraProcessData",
       "type": {
         "kind": "struct",
@@ -1117,6 +1015,10 @@
           },
           {
             "name": "needUnbond",
+            "type": "u64"
+          },
+          {
+            "name": "pendingUnbond",
             "type": "u64"
           },
           {
@@ -1448,218 +1350,218 @@
     },
     {
       "code": 6003,
+      "name": "PendingAdminNotMatch",
+      "msg": "Pending admin not match"
+    },
+    {
+      "code": 6004,
+      "name": "ParamsNotMatch",
+      "msg": "Params not match"
+    },
+    {
+      "code": 6005,
       "name": "BalancerNotMatch",
       "msg": "Balancer not match"
     },
     {
-      "code": 6004,
+      "code": 6006,
       "name": "InitializeDataMatch",
       "msg": "Initialize data not match"
     },
     {
-      "code": 6005,
+      "code": 6007,
       "name": "PlatformFeeRecipientNotMatch",
       "msg": "Platform fee recipient not match"
     },
     {
-      "code": 6006,
+      "code": 6008,
       "name": "StackFeeRecipientNotMatch",
       "msg": "Stack fee recipient not match"
     },
     {
-      "code": 6007,
+      "code": 6009,
       "name": "StackNotMatch",
       "msg": "Stack not match"
     },
     {
-      "code": 6008,
+      "code": 6010,
       "name": "DelegationEmpty",
       "msg": "Delegation empty"
     },
     {
-      "code": 6009,
+      "code": 6011,
       "name": "StakeAmountTooLow",
       "msg": "Stake amount too low"
     },
     {
-      "code": 6010,
+      "code": 6012,
       "name": "StakeAccountNotActive",
       "msg": "Stake account not active"
     },
     {
-      "code": 6011,
+      "code": 6013,
       "name": "StakeAccountActive",
       "msg": "Stake account active"
     },
     {
-      "code": 6012,
+      "code": 6014,
       "name": "StakeAccountWithLockup",
       "msg": "Stake account with lockup"
     },
     {
-      "code": 6013,
+      "code": 6015,
       "name": "UnstakeRecipientNotMatch",
       "msg": "Unstake recipient not match"
     },
     {
-      "code": 6014,
+      "code": 6016,
       "name": "ValidatorNotExist",
       "msg": "Validator not exist"
     },
     {
-      "code": 6015,
+      "code": 6017,
       "name": "ValidatorAlreadyExist",
       "msg": "Validator already exist"
     },
     {
-      "code": 6016,
+      "code": 6018,
       "name": "StakeManagerAlreadyExist",
       "msg": "StakeManager already exist"
     },
     {
-      "code": 6017,
+      "code": 6019,
       "name": "ValidatorNotMatch",
       "msg": "Validator not match"
     },
     {
-      "code": 6018,
+      "code": 6020,
       "name": "StakeAccountAlreadyExist",
       "msg": "Stake account already exist"
     },
     {
-      "code": 6019,
+      "code": 6021,
       "name": "SplitStakeAccountAlreadyExist",
       "msg": "Split stake account already exist"
     },
     {
-      "code": 6020,
+      "code": 6022,
       "name": "StakeAccountNotExist",
       "msg": "Stake account not exist"
     },
     {
-      "code": 6021,
+      "code": 6023,
       "name": "RentNotEnough",
       "msg": "Rent not enough"
     },
     {
-      "code": 6022,
+      "code": 6024,
       "name": "BalanceNotEnough",
       "msg": "Balance not enough"
     },
     {
-      "code": 6023,
+      "code": 6025,
       "name": "CalculationFail",
       "msg": "Calulation fail"
     },
     {
-      "code": 6024,
+      "code": 6026,
       "name": "AuthorityNotMatch",
       "msg": "Authority not match"
     },
     {
-      "code": 6025,
+      "code": 6027,
       "name": "EraIsLatest",
       "msg": "Era is latest"
     },
     {
-      "code": 6026,
+      "code": 6028,
       "name": "EraIsProcessing",
       "msg": "Era is processing"
     },
     {
-      "code": 6027,
+      "code": 6029,
       "name": "EraIsProcessed",
       "msg": "Era is processed"
     },
     {
-      "code": 6028,
+      "code": 6030,
       "name": "EraNoNeedBond",
       "msg": "Era no need bond"
     },
     {
-      "code": 6029,
+      "code": 6031,
       "name": "EraNoNeedSkipBond",
       "msg": "Era no need skip bond"
     },
     {
-      "code": 6030,
+      "code": 6032,
       "name": "EraNoNeedUnBond",
       "msg": "Era no need unbond"
     },
     {
-      "code": 6031,
+      "code": 6033,
       "name": "EraNoNeedUpdateActive",
       "msg": "Era no need update active"
     },
     {
-      "code": 6032,
+      "code": 6034,
       "name": "EraNoNeedUpdateRate",
       "msg": "Era no need update rate"
     },
     {
-      "code": 6033,
+      "code": 6035,
       "name": "AmountUnmatch",
       "msg": "Amount unmatch"
     },
     {
-      "code": 6034,
+      "code": 6036,
       "name": "InvalidUnstakeAccount",
       "msg": "Invalid unstake account"
     },
     {
-      "code": 6035,
+      "code": 6037,
       "name": "UnstakeAccountNotClaimable",
       "msg": "Unstake account not claimable"
     },
     {
-      "code": 6036,
+      "code": 6038,
       "name": "UnstakeAccountAmountZero",
       "msg": "Unstake account amount zero"
     },
     {
-      "code": 6037,
+      "code": 6039,
       "name": "PoolBalanceNotEnough",
       "msg": "Pool balance not enough"
     },
     {
-      "code": 6038,
+      "code": 6040,
       "name": "UnstakeAmountIsZero",
       "msg": "Unstake amount is zero"
     },
     {
-      "code": 6039,
+      "code": 6041,
       "name": "ValidatorsNotEqual",
       "msg": "Validators not equal"
     },
     {
-      "code": 6040,
+      "code": 6042,
       "name": "RateChangeOverLimit",
       "msg": "Rate change over limit"
     },
     {
-      "code": 6041,
+      "code": 6043,
       "name": "MintAccountNotMatch",
       "msg": "Mint account not match"
     },
     {
-      "code": 6042,
-      "name": "MintAuthorityNotMatch",
-      "msg": "Mint authority not match"
-    },
-    {
-      "code": 6043,
-      "name": "FreezeAuthorityNotMatch",
-      "msg": "Freeze authority not match"
-    },
-    {
       "code": 6044,
-      "name": "MintSupplyNotEmpty",
-      "msg": "Mint supply not empty"
+      "name": "MintToOwnerNotMatch",
+      "msg": "Mint to owner not match"
     },
     {
       "code": 6045,
-      "name": "MintToOwnerNotMatch",
-      "msg": "Mint to owner not match"
+      "name": "MintNotMatch",
+      "msg": "Mint not match"
     },
     {
       "code": 6046,

@@ -37,6 +37,7 @@ pub struct StakeManager {
 pub struct EraProcessData {
     pub need_bond: u64,
     pub need_unbond: u64,
+    pub pending_unbond: u64,
     pub old_active: u64,
     pub new_active: u64,
     pub pending_stake_accounts: Vec<Pubkey>,
