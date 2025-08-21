@@ -131,6 +131,8 @@ impl<'info> EraUpdateRate<'info> {
             0
         };
 
+        self.lsd_token_mint.reload()?;
+
         let new_rate = self
             .stake_manager
             .calc_rate(new_active, self.lsd_token_mint.supply)?;
