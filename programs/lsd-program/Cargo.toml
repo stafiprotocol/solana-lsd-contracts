@@ -1,6 +1,6 @@
 [package]
 name = "lsd-program"
-version = "0.1.1"
+version = "0.1.2"
 description = "StaFi's solana lsd program"
 edition = "2021"
 
@@ -17,10 +17,8 @@ default = []
 
 [dependencies]
 anchor-lang = "0.29.0"
-anchor-spl = { version = "0.29.0", default-features = false, features = [
+anchor-spl = { version = "0.29.0", default-features = true, features = [
     "stake",
-    "mint",
-    "spl-token",
-    "token",
-    "associated_token",
+    "metadata",
 ] }
+mpl-token-metadata = "3.2.3"

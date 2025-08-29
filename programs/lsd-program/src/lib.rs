@@ -13,6 +13,7 @@ pub mod era_withdraw;
 pub mod errors;
 pub mod initialize_stack;
 pub mod initialize_stake_manager;
+pub mod metadata;
 pub mod redelegate;
 pub mod staker_stake;
 pub mod staker_unstake;
@@ -32,6 +33,7 @@ pub use crate::era_withdraw::*;
 pub use crate::errors::Errors;
 pub use crate::initialize_stack::*;
 pub use crate::initialize_stake_manager::*;
+pub use crate::metadata::*;
 pub use crate::redelegate::*;
 pub use crate::staker_stake::*;
 pub use crate::staker_unstake::*;
@@ -221,6 +223,15 @@ pub mod lsd_program {
         ctx.accounts.process(redelegate_amount)?;
 
         Ok(())
+    }
+
+    // metadata
+    pub fn create_metadata_v1(
+        ctx: Context<CreateMetadataV1>,
+        params: CreateMetadataParams,
+    ) -> Result<()> {
+        check_context(&ctx)?;
+        ctx.accounts.process(params)
     }
 
     // staker
